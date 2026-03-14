@@ -170,7 +170,7 @@ Esto evita que los controllers o services dependan directamente del formato de l
 
 Para mantener consistencia en el código se siguen las siguientes reglas.
 
-## Idioma
+### Idioma
 
 Todo el código debe estar escrito en **inglés**, incluyendo:
 
@@ -194,11 +194,11 @@ La documentación del repositorio (README, issues, etc.) puede estar en español
 
 Sí, conviene ampliar esa sección para cubrir **clases, métodos, variables, constantes, paquetes/carpetas y endpoints**. Te dejo una versión más completa y prolija para el README:
 
-## Naming
+### Naming
 
 Para mantener consistencia y legibilidad, todo el código debe seguir una convención de nombres uniforme.
 
-### Clases
+#### Clases
 
 Las clases deben utilizar nombres en singular y en **PascalCase**.
 
@@ -222,7 +222,7 @@ productService
 product_controller
 ```
 
-### Métodos
+#### Métodos
 
 Los métodos deben usar **camelCase** y representar claramente la acción que realizan.
 
@@ -247,7 +247,7 @@ doProduct
 mapper
 ```
 
-### Variables y atributos
+#### Variables y atributos
 
 Las variables, parámetros y atributos deben usar **camelCase** y nombres descriptivos.
 
@@ -270,7 +270,7 @@ prod_id
 repositoryProducts
 ```
 
-### Constantes
+#### Constantes
 
 Las constantes deben escribirse en **UPPER_SNAKE_CASE**.
 
@@ -290,7 +290,7 @@ MaxPrice
 productNotFoundMessage
 ```
 
-### Paquetes y carpetas
+#### Paquetes y carpetas
 
 Los paquetes y carpetas deben escribirse en **minúsculas**, sin espacios ni caracteres especiales, y reflejar claramente su responsabilidad.
 
@@ -317,7 +317,7 @@ DTOs
 Exceptions
 ```
 
-### Endpoints REST
+#### Endpoints REST
 
 Los endpoints deben usar nombres en plural, en minúsculas y orientados a recursos.
 
@@ -339,7 +339,7 @@ POST /createProduct
 GET /product/getById
 ```
 
-## DTOs
+### DTOs
 
 Se utilizan DTOs separados para requests y responses.
 
@@ -352,7 +352,7 @@ ProductResponseDto
 
 Los DTOs utilizan **records** cuando es posible.
 
-## Validación
+### Validación
 
 Las validaciones se definen en los DTOs utilizando **Jakarta Validation**.
 
@@ -366,7 +366,7 @@ Ejemplo:
 
 La validación se ejecuta automáticamente mediante `@Valid` en los controllers.
 
-## Repositorios
+### Repositorios
 
 Los repositorios deben devolver `Optional` cuando una entidad puede no existir.
 
@@ -376,7 +376,7 @@ Ejemplo:
 Optional<Product> findById(int id)
 ```
 
-## Mappers
+### Mappers
 
 Cada módulo posee su propio mapper.
 
@@ -389,7 +389,7 @@ UserMapper
 
 Los mappers no deben mezclarse entre módulos.
 
-## Streams y Optional
+### Streams y Optional
 
 Se utilizan:
 
