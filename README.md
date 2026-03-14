@@ -4,7 +4,16 @@ Backend del sistema **Marketplace** desarrollado como Trabajo Práctico Obligato
 
 El proyecto está implementado utilizando **Spring Boot** y sigue una arquitectura **modular por dominio**, priorizando simplicidad, mantenibilidad y claridad en la separación de responsabilidades.
 
-# Requisitos para desarrollo
+## Integrantes
+
+| Alumno                  | LU      | Mail UADE               |
+|-------------------------|---------|-------------------------|
+| Garcia, Matias Nicolas  |         |                         |
+| Giulietti, Juan Manuel  |         |                         |
+| Rodriguez, Tobias       |         |                         |
+| Troitiño, Valentin Blas | 1205019 | <vtroitino@uade.edu.ar> |
+
+## Requisitos para desarrollo
 
 Para poder ejecutar y desarrollar en este proyecto se requiere tener instalado:
 
@@ -12,7 +21,7 @@ Para poder ejecutar y desarrollar en este proyecto se requiere tener instalado:
 
 Verificar instalación:
 
-```
+```bash
 java -version
 ```
 
@@ -24,59 +33,59 @@ Se recomienda utilizar alguno de los siguientes:
 * VSCode con extensiones de Java
 * Eclipse
 
-# Instalación del proyecto
+## Instalación del proyecto
 
 Clonar el repositorio:
 
-```
+```bash
 git clone <repo-url>
 ```
 
 Entrar al directorio:
 
-```
+```bash
 cd marketplace
 ```
 
 Instalar dependencias:
 
-```
+```bash
 mvn clean install
 ```
 
-# Ejecutar la aplicación
+## Ejecutar la aplicación
 
 Para iniciar el servidor:
 
-```
+```bash
 mvn spring-boot:run
 ```
 
 La API quedará disponible en:
 
-```
+```bash
 http://localhost:8080
 ```
 
-# Documentación de la API
+## Documentación de la API
 
 La documentación interactiva de la API se genera automáticamente con Swagger.
 
 Disponible en:
 
-```
+```bash
 http://localhost:8080/swagger-ui/index.html
 ```
 
 Desde ahi se pueden probar todos los endpoints directamente.
 
-# Arquitectura del proyecto
+## Arquitectura del proyecto
 
 El proyecto sigue una arquitectura **modular por dominio con capas internas**.
 
 Ejemplo:
 
-```
+```bash
 marketplace
 │
 ├── products
@@ -151,13 +160,13 @@ Esto permite desacoplar la API pública del modelo interno.
 
 Los mappers se encargan de transformar entre:
 
-```
+```bash
 DTO ↔ Entity
 ```
 
 Esto evita que los controllers o services dependan directamente del formato de la API.
 
-# Convenciones del proyecto
+## Convenciones del proyecto
 
 Para mantener consistencia en el código se siguen las siguientes reglas.
 
@@ -165,21 +174,21 @@ Para mantener consistencia en el código se siguen las siguientes reglas.
 
 Todo el código debe estar escrito en **inglés**, incluyendo:
 
-- nombres de clases
-- nombres de métodos
-- nombres de variables
-- DTOs
-- comentarios (evitarlos)
-- documentación (Javadoc)
+* nombres de clases
+* nombres de métodos
+* nombres de variables
+* DTOs
+* comentarios (evitarlos)
+* documentación (Javadoc)
 
 Esto incluye también:
 
-- controllers
-- services
-- repositories
-- entities
-- mappers
-- dtos
+* controllers
+* services
+* repositories
+* entities
+* mappers
+* dtos
 
 La documentación del repositorio (README, issues, etc.) puede estar en español, pero **el código fuente siempre debe estar en inglés**.
 
@@ -336,7 +345,7 @@ Se utilizan DTOs separados para requests y responses.
 
 Ejemplo:
 
-```
+```text
 CreateProductDto
 ProductResponseDto
 ```
@@ -349,7 +358,7 @@ Las validaciones se definen en los DTOs utilizando **Jakarta Validation**.
 
 Ejemplo:
 
-```
+```java
 @NotBlank
 @NotNull
 @Positive
@@ -363,7 +372,7 @@ Los repositorios deben devolver `Optional` cuando una entidad puede no existir.
 
 Ejemplo:
 
-```
+```java
 Optional<Product> findById(int id)
 ```
 
@@ -373,7 +382,7 @@ Cada módulo posee su propio mapper.
 
 Ejemplo:
 
-```
+```java
 ProductMapper
 UserMapper
 ```
