@@ -26,6 +26,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    // TODO: add pagination and filters
     @GetMapping
     public List<Product> getProducts() {
         return this.productService.getProducts();
