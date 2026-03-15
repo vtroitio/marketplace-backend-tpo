@@ -41,4 +41,5 @@ public class ProductController {
         return this.productService.createProduct(dto);
     }
 
+    // TODO: delete endpoint
 }
