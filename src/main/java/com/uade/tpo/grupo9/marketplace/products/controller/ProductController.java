@@ -41,4 +41,6 @@ public class ProductController {
         return this.productService.createProduct(dto);
     }
 
+    // TODO: update endpoint
+
 }
