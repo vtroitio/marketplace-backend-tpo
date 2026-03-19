@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
+import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
 import com.uade.tpo.grupo9.marketplace.common.exception.ErrorResponse;
@@ -80,7 +80,7 @@ public class ProductController {
             )
         )
     })
-    public Product createProduct(@Valid @RequestBody CreateProductDto dto) {
+    public Product createProduct(@Valid @RequestBody CreateProductRequest dto) {
         return this.productService.createProduct(dto);
     }
 
