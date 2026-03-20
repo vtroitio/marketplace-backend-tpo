@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
+import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo9.marketplace.products.repository.ProductRepository;
@@ -58,7 +58,7 @@ public class ProductService {
      *            to create a new product
      * @return the newly created {@link Product} entity
      */
-    public Product createProduct(CreateProductDto dto) {
+    public Product createProduct(CreateProductRequest dto) {
         Product product = ProductMapper.toEntitiy(dto);
         return this.productsRepository.create(product);
     }
