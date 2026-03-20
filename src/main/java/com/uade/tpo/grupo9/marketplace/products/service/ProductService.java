@@ -10,6 +10,7 @@ import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo9.marketplace.products.repository.ProductRepository;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 
 @Service
 public class ProductService {
@@ -62,4 +63,29 @@ public class ProductService {
         Product product = ProductMapper.toEntitiy(dto);
         return this.productsRepository.create(product);
     }
+
+    public Product updateProduct(int productId, UpdateProductDto dto) throws ResponseStatusException {
+    Product product = this.productsRepository.findById(productId)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Product not found"
+        ));
+
+    if (dto.getName() != null) {
+        product.setName(dto.getName());
+    }
+
+    if (dto.getPrice() != null) {
+        if (dto.getPrice() <= 0) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Price must be positive"
+            );
+        }
+        product.setPrice(dto.getPrice());
+    }
+
+    return this.productsRepository.save(product);
+}
+
 }

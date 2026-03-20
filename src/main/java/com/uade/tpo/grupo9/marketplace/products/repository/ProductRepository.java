@@ -82,4 +82,15 @@ public class ProductRepository {
         return product;
     }
 
+    public Product save(Product product) {
+    for (int i = 0; i < this.products.size(); i++) {
+        if (this.products.get(i).getId().equals(product.getId())) {
+            this.products.set(i, product);
+            return product;
+        }
+    }
+
+    throw new IllegalArgumentException("Product not found");
+}
+
 }

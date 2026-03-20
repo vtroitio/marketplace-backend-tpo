@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PatchMapping;
+
 
 @RestController
 @RequestMapping("products")
@@ -41,6 +44,11 @@ public class ProductController {
         return this.productService.createProduct(dto);
     }
 
-    // TODO: update endpoint
-
+    @PatchMapping("{productId}")
+    public Product updateProduct(
+    @PathVariable int productId,
+    @RequestBody UpdateProductDto dto
+    ) {
+    return this.productService.updateProduct(productId, dto);
+    }
 }
