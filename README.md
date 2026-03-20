@@ -9,7 +9,7 @@ El proyecto está implementado utilizando **Spring Boot** y sigue una arquitectu
 | Alumno                  | LU      | Mail UADE                    |
 |-------------------------|---------|------------------------------|
 | Garcia, Matias Nicolas  |         |                              |
-| Giulietti, Juan Manuel  |         |                              |
+| Giulietti, Juan Manuel  | 1199949 | <jgiulietti@uade.edu.ar>     |
 | Rodriguez, Tobias       | 1177362 | <tobiarodriguez@uade.edu.ar> |
 | Troitiño, Valentin Blas | 1205019 | <vtroitino@uade.edu.ar>      |
 
