@@ -1,6 +1,6 @@
 package com.uade.tpo.grupo9.marketplace.products.mapper;
 
-import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
+import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 
 /**
@@ -10,12 +10,12 @@ import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 public class ProductMapper {
 
     /**
-     * Converts a {@link CreateProductDto} into a {@link Product} entity.
+     * Converts a {@link CreateProductRequest} into a {@link Product} entity.
      *
      * @param dto the data transfer object containing the product
      *            information provided by the client
      */
-    public static Product toEntitiy(CreateProductDto dto) {
+    public static Product toEntitiy(CreateProductRequest dto) {
         return Product.builder()
                 .name(dto.name())
                 .price(dto.price())

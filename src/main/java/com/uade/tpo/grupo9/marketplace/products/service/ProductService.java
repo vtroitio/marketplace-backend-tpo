@@ -1,16 +1,16 @@
 package com.uade.tpo.grupo9.marketplace.products.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductDto;
+import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo9.marketplace.products.repository.ProductRepository;
-import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 
 @Service
 public class ProductService {
@@ -23,18 +23,20 @@ public class ProductService {
 
     /**
      * Retrieves all products stored in the repository.
-     * 
-     * @return a list containing all {@link Product} entities currently available
+     *
+     * @return a list containing all {@link Product} entities currently
+     * available
      */
-    public List<Product> getProducts() {
-        return this.productsRepository.findAll();
+    public Page<Product> getProducts(Pageable pageable) {
+        return this.productsRepository.findAll(pageable);
     }
 
     /**
      * Retrieves a single product by its identifier.
      *
-     * <p>If the product does not exist, a {@link ResponseStatusException}
-     * with HTTP status {@code 404 NOT_FOUND} is thrown.</p>
+     * <p>
+     * If the product does not exist, a {@link ResponseStatusException} with
+     * HTTP status {@code 404 NOT_FOUND} is thrown.</p>
      *
      * @param productId the unique identifier of the product to retrieve
      * @return the {@link Product} matching the provided identifier
@@ -42,50 +44,55 @@ public class ProductService {
      */
     public Product getProductById(int productId) throws ResponseStatusException {
         return this.productsRepository.findById(productId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Product not found"
-            ));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"
+                ));
     }
 
-
     /**
-     * Creates a new product from the provided DTO and stores it in the repository.
+     * Creates a new product from the provided DTO and stores it in the
+     * repository.
      *
-     * <p>The DTO is first converted into a {@link Product} entity using
+     * <p>
+     * The DTO is first converted into a {@link Product} entity using
      * {@link ProductMapper}, then persisted via the repository layer.</p>
      *
      * @param dto the data transfer object containing the information required
-     *            to create a new product
+     * to create a new product
      * @return the newly created {@link Product} entity
      */
-    public Product createProduct(CreateProductDto dto) {
+    public Product createProduct(CreateProductRequest dto) {
         Product product = ProductMapper.toEntitiy(dto);
         return this.productsRepository.create(product);
     }
 
     public Product updateProduct(int productId, UpdateProductDto dto) throws ResponseStatusException {
-    Product product = this.productsRepository.findById(productId)
-        .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Product not found"
-        ));
+        Product product = this.productsRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"
+                ));
 
-    if (dto.getName() != null) {
-        product.setName(dto.getName());
-    }
-
-    if (dto.getPrice() != null) {
-        if (dto.getPrice() <= 0) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Price must be positive"
-            );
+        if (dto.getName() != null) {
+            product.setName(dto.getName());
         }
-        product.setPrice(dto.getPrice());
+
+        if (dto.getPrice() != null) {
+            if (dto.getPrice() <= 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Price must be positive"
+                );
+            }
+            product.setPrice(dto.getPrice());
+        }
+
+        return this.productsRepository.save(product);
     }
 
-    return this.productsRepository.save(product);
-}
-
+    public void deleteProduct(int productId) {
+        this.getProductById(productId);
+        this.productsRepository.deleteById(productId);
+    }
 }
