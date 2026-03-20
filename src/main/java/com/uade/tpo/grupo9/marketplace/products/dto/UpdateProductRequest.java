@@ -1,11 +1,11 @@
 package com.uade.tpo.grupo9.marketplace.products.dto;
 
-public class UpdateProductDto {
+public class UpdateProductRequest {
 
     private String name;
     private Double price;
 
-    public UpdateProductDto() {}
+    public UpdateProductRequest() {}
 
     public String getName() {
         return name;
