@@ -62,4 +62,10 @@ public class ProductService {
         Product product = ProductMapper.toEntitiy(dto);
         return this.productsRepository.create(product);
     }
+
+    public void deleteProduct(int productId) {
+        this.getProductById(productId);
+        
+        this.productsRepository.deleteById(productId);
+    }
 }

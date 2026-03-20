@@ -82,4 +82,8 @@ public class ProductRepository {
         return product;
     }
 
+    public void deleteById(int productId) {
+        this.products.removeIf(product -> product.getId() == productId);
+    }
+
 }
