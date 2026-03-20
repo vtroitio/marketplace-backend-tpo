@@ -1,16 +1,23 @@
 package com.uade.tpo.grupo9.marketplace.products.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo9.marketplace.common.exception.ErrorResponse;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
-import com.uade.tpo.grupo9.marketplace.common.exception.ErrorResponse;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,9 +26,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("products")
@@ -36,29 +40,29 @@ public class ProductController {
 
     @GetMapping
     @Operation(
-        summary = "Obtener todos los productos", 
+        summary = "Obtener todos los productos",
         description = "Obtiene una lista de todos los productos disponibles en el marketplace"
     )
     @ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente")
-    public List<Product> getProducts() {
-        return this.productService.getProducts();
+    public Page<Product> getProducts(
+            @PageableDefault(page = 0, size = 5) Pageable pageable
+    ) {
+        return this.productService.getProducts(pageable);
     }
 
     @GetMapping("{productId}")
     @Operation(
-        summary = "Obtener un producto por ID", 
+        summary = "Obtener un producto por ID",
         description = "Obtiene los detalles de un producto específico utilizando su ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Producto no encontrado",
-                content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ErrorResponse.class)
-                )
-            )
+    )    
+    @ApiResponses(value={
+        @ApiResponse(responseCode="200",description="Producto encontrado"),
+        @ApiResponse(
+            responseCode="404",
+            description="Producto no encontrado",
+            content=@Content(
+                mediaType="application/json",
+                schema=@Schema(implementation=ErrorResponse.class)))
     })
     public Product getProductById(@PathVariable int productId) {
         return this.productService.getProductById(productId);
@@ -66,22 +70,33 @@ public class ProductController {
 
     @PostMapping
     @Operation(
-        summary = "Crear un nuevo producto", 
+        summary = "Crear un nuevo producto",
         description = "Crea un nuevo producto en el marketplace con los datos proporcionados"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Producto creado"),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Datos de producto inválidos",
-                content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ErrorResponse.class)
-            )
+    @ApiResponses(value={
+        @ApiResponse(responseCode="201",description="Producto creado"),
+        @ApiResponse(
+            responseCode="400",
+            description="Datos de producto inválidos",
+            content=@Content(
+                mediaType="application/json",
+                schema=@Schema(implementation=ErrorResponse.class))
         )
     })
     public Product createProduct(@Valid @RequestBody CreateProductRequest dto) {
         return this.productService.createProduct(dto);
     }
 
+    @PatchMapping("{productId}")
+    public Product updateProduct(
+            @PathVariable int productId,
+            @RequestBody UpdateProductRequest dto) {
+        return this.productService.updateProduct(productId, dto);
+    }
+
+    @DeleteMapping("{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int productId) {
+        this.productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
 }
