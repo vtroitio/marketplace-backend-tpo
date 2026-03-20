@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo9.marketplace.products.repository.ProductRepository;
@@ -44,9 +45,9 @@ public class ProductService {
     public Product getProductById(int productId) throws ResponseStatusException {
         return this.productsRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Product not found"
-        ));
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"
+                ));
     }
 
     /**
@@ -66,9 +67,32 @@ public class ProductService {
         return this.productsRepository.create(product);
     }
 
+    public Product updateProduct(int productId, UpdateProductDto dto) throws ResponseStatusException {
+        Product product = this.productsRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"
+                ));
+
+        if (dto.getName() != null) {
+            product.setName(dto.getName());
+        }
+
+        if (dto.getPrice() != null) {
+            if (dto.getPrice() <= 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Price must be positive"
+                );
+            }
+            product.setPrice(dto.getPrice());
+        }
+
+        return this.productsRepository.save(product);
+    }
+
     public void deleteProduct(int productId) {
         this.getProductById(productId);
-        
         this.productsRepository.deleteById(productId);
     }
 }

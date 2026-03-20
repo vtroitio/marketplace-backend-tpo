@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.grupo9.marketplace.common.exception.ErrorResponse;
 import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductDto;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
 
@@ -86,6 +88,14 @@ public class ProductController {
     })
     public Product createProduct(@Valid @RequestBody CreateProductRequest dto) {
         return this.productService.createProduct(dto);
+    }
+
+    @PatchMapping("{productId}")
+    public Product updateProduct(
+        @PathVariable int productId,
+        @RequestBody UpdateProductDto dto
+    ) {
+        return this.productService.updateProduct(productId, dto);
     }
 
     @DeleteMapping("{productId}")
