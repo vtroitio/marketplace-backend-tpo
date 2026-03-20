@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.grupo9.marketplace.common.ErrorResponse;
 import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
-import com.uade.tpo.grupo9.marketplace.common.exception.ErrorResponse;
 import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo9.marketplace.products.entity.Product;
 import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
@@ -88,6 +88,27 @@ public class ProductController {
     }
 
     @PatchMapping("{productId}")
+    @Operation(
+        summary = "Actualizar un producto existente",
+        description = "Actualiza los detalles de un producto existente utilizando su ID y los datos proporcionados"
+    )
+    @ApiResponses(value={
+        @ApiResponse(responseCode="200",description="Producto actualizado"),
+        @ApiResponse(
+            responseCode="400",
+            description="Datos de producto inválidos",
+            content=@Content(
+                mediaType="application/json",
+                schema=@Schema(implementation=ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode="404",
+            description="Producto no encontrado",
+            content=@Content(
+                mediaType="application/json",
+                schema=@Schema(implementation=ErrorResponse.class))
+        )
+    })
     public Product updateProduct(
             @PathVariable int productId,
             @RequestBody UpdateProductRequest dto) {
@@ -95,6 +116,20 @@ public class ProductController {
     }
 
     @DeleteMapping("{productId}")
+    @Operation(
+        summary = "Eliminar un producto",
+        description = "Elimina un producto del marketplace utilizando su ID"
+    )
+    @ApiResponses(value={
+        @ApiResponse(responseCode="204",description="Producto eliminado"),
+        @ApiResponse(
+            responseCode="404",
+            description="Producto no encontrado",
+            content=@Content(
+                mediaType="application/json",
+                schema=@Schema(implementation=ErrorResponse.class))
+        )
+    })
     public ResponseEntity<Void> deleteProduct(@PathVariable int productId) {
         this.productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
