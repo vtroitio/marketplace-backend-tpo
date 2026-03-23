@@ -40,8 +40,8 @@ public class ProductController {
 
     @GetMapping
     @Operation(
-        summary = "Obtener todos los productos",
-        description = "Obtiene una lista de todos los productos disponibles en el marketplace"
+        summary = "Obtener los productos paginados",
+        description = "Obtiene una lista paginada de productos disponibles en el marketplace. Se pueden especificar parámetros de paginación como número de página, tamaño de página y ordenamiento"
     )
     @ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente")
     public Page<Product> getProducts(
