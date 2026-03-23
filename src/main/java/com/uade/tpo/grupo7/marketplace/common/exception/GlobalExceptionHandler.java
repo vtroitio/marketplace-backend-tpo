@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace.common.exception;
+package com.uade.tpo.grupo7.marketplace.common.exception;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import com.uade.tpo.grupo9.marketplace.common.ErrorResponse;
+import com.uade.tpo.grupo7.marketplace.common.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 

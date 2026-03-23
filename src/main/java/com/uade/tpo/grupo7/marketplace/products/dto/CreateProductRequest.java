@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace.products.dto;
+package com.uade.tpo.grupo7.marketplace.products.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

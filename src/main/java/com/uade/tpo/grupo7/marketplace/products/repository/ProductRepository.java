@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace.products.repository;
+package com.uade.tpo.grupo7.marketplace.products.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.uade.tpo.grupo9.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 
 @Repository
 public class ProductRepository {

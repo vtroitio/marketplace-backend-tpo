@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace.common;
+package com.uade.tpo.grupo7.marketplace.common;
 
 import java.util.Map;
 

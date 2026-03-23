@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace.products.controller;
+package com.uade.tpo.grupo7.marketplace.products.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uade.tpo.grupo9.marketplace.common.ErrorResponse;
-import com.uade.tpo.grupo9.marketplace.products.dto.CreateProductRequest;
-import com.uade.tpo.grupo9.marketplace.products.dto.UpdateProductRequest;
-import com.uade.tpo.grupo9.marketplace.products.entity.Product;
-import com.uade.tpo.grupo9.marketplace.products.service.ProductService;
+import com.uade.tpo.grupo7.marketplace.common.ErrorResponse;
+import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.service.ProductService;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

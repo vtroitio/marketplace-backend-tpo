@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo9.marketplace;
+package com.uade.tpo.grupo7.marketplace;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

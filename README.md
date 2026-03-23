@@ -1,4 +1,4 @@
-# Marketplace Backend - TPO Grupo 9
+# Marketplace Backend - TPO Grupo 7
 
 Backend del sistema **Marketplace** desarrollado como Trabajo Práctico Obligatorio para la materia **Aplicaciones Interactivas** en **UADE**.
 
