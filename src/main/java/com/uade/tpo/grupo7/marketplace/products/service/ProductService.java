@@ -15,20 +15,20 @@ import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 @Service
 public class ProductService {
 
-    private final ProductRepository productsRepository;
+    private final ProductRepository productRepository;
 
-    public ProductService(ProductRepository productsRepository) {
-        this.productsRepository = productsRepository;
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     /**
-     * Retrieves all products stored in the repository.
-     *
-     * @return a list containing all {@link Product} entities currently
-     * available
-     */
+    * Retrieves a paginated list of products from the repository.
+    *
+    * @param pageable the pagination information (page number, page size, sorting)
+    * @return a page of products matching the pagination criteria
+    */
     public Page<Product> getProducts(Pageable pageable) {
-        return this.productsRepository.findAll(pageable);
+        return this.productRepository.findAll(pageable);
     }
 
     /**
@@ -43,7 +43,7 @@ public class ProductService {
      * @throws ResponseStatusException if no product with the given id exists
      */
     public Product getProductById(int productId) throws ResponseStatusException {
-        return this.productsRepository.findById(productId)
+        return this.productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Product not found"
@@ -64,35 +64,39 @@ public class ProductService {
      */
     public Product createProduct(CreateProductRequest dto) {
         Product product = ProductMapper.toEntitiy(dto);
-        return this.productsRepository.create(product);
+        return this.productRepository.save(product);
     }
 
+    /**
+     * Updates an existing product with the provided information.
+     *
+     * @param productId the ID of the product to update
+     * @param dto the {@link UpdateProductRequest} containing the updated product information
+     * @return the updated {@link Product} object after saving to the repository
+     * @throws ResponseStatusException if the product with the specified ID is not found
+     */
     public Product updateProduct(int productId, UpdateProductRequest dto) throws ResponseStatusException {
-        Product product = this.productsRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product not found"
-                ));
+        Product product = this.getProductById(productId);
 
-        if (dto.getName() != null) {
-            product.setName(dto.getName());
+        if (dto.name() != null) {
+            product.setName(dto.name());
         }
 
-        if (dto.getPrice() != null) {
-            if (dto.getPrice() <= 0) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Price must be positive"
-                );
-            }
-            product.setPrice(dto.getPrice());
+        if (dto.price() != null) {
+            product.setPrice(dto.price());
         }
 
-        return this.productsRepository.save(product);
+        return this.productRepository.save(product);
     }
 
-    public void deleteProduct(int productId) {
+    /**
+     * Deletes a product from the repository by its ID.
+     * 
+     * @param productId the ID of the product to delete
+     * @throws ResponseStatusException if the product with the specified ID is not found
+     */
+    public void deleteProduct(int productId) throws ResponseStatusException {
         this.getProductById(productId);
-        this.productsRepository.deleteById(productId);
+        this.productRepository.deleteById(productId);
     }
 }

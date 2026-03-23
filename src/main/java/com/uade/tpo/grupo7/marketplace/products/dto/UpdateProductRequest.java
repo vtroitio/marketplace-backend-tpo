@@ -1,25 +1,15 @@
 package com.uade.tpo.grupo7.marketplace.products.dto;
 
-public class UpdateProductRequest {
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Positive;
 
-    private String name;
-    private Double price;
+@Schema(description = "DTO para la actualización del detalle de un producto en el marketplace")
+public record UpdateProductRequest(
 
-    public UpdateProductRequest() {}
+    @Schema(description = "Nombre del producto", example = "Remera Negra")
+    String name,
 
-    public String getName() {
-        return name;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-}
+    @Schema(description = "Precio del producto", example = "19.99")
+    @Positive(message = "Price must be positive and not 0")
+    Double price
+) {} 
