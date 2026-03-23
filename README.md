@@ -25,6 +25,18 @@ Verificar instalación:
 java -version
 ```
 
+### Docker
+
+Podés descargar Docker desde el sitio oficial: <https://www.docker.com/>
+
+> En Windows y Mac se recomienda instalar Docker Desktop
+
+Verificar instalación:
+
+```bash
+docker --version
+```
+
 ### IDE recomendado
 
 Se recomienda utilizar alguno de los siguientes:
@@ -44,7 +56,7 @@ git clone <repo-url>
 Entrar al directorio:
 
 ```bash
-cd marketplace
+cd marketplace-backend-tpo
 ```
 
 Instalar dependencias:
@@ -78,6 +90,20 @@ http://localhost:8080/swagger-ui/index.html
 ```
 
 Desde ahi se pueden probar todos los endpoints directamente.
+
+## Administrar Base de Datos (pgAdmin)
+
+Este proyecto utiliza [Docker](https://www.docker.com/) para levantar tanto PostgreSQL como pgAdmin, por lo que no es necesario instalarlos manualmente en tu máquina.
+
+Una vez que el proyecto esté corriendo, podés acceder a pgAdmin desde:
+
+```bash
+http://localhost:5050
+```
+
+>**NOTA:** Antes de comenzar, es necesario realizar una configuración inicial en pgAdmin.
+>Podés seguir este video (desde el minuto indicado): https://youtu.be/XDlgWyVfSMA?t=827
+
 
 ## Arquitectura del proyecto
 

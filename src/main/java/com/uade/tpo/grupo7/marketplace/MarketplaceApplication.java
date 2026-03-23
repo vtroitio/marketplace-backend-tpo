@@ -1,20 +1,37 @@
 package com.uade.tpo.grupo7.marketplace;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = {
-    DataSourceAutoConfiguration.class, 
-    DataSourceTransactionManagerAutoConfiguration.class, 
-    HibernateJpaAutoConfiguration.class
-})
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+
+import java.util.TimeZone;
+
+@SpringBootApplication()
 public class MarketplaceApplication {
 
 	public static void main(String[] args) {
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		SpringApplication.run(MarketplaceApplication.class, args);
 	}
 
+	@Bean
+	CommandLineRunner commandLineRunner(ProductRepository repo) {
+		return args -> {
+			if (repo.count() != 0) {
+				return;
+			}
+
+			for (int i = 1; i <= 25; i++) {
+				repo.save(
+					Product.builder()
+						.name("Remera " + i)
+						.price(10.0 * i)
+						.build());
+			}
+		};
+	}
 }

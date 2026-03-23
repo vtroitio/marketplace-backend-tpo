@@ -1,20 +1,29 @@
 package com.uade.tpo.grupo7.marketplace.products.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Data;
 
+@Entity
 @Data
 @Builder
 @Schema(description = "Entidad que representa un producto en el marketplace")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     @Schema(description = "Identificador único del producto", example = "1")
     private Integer id;
 
+    @Column(nullable = false)
     @Schema(description = "Nombre del producto", example = "Remera Negra")
     private String name;
 
+    @Column(nullable = false)
     @Schema(description = "Precio del producto", example = "19.99")
     private Double price;
 }
