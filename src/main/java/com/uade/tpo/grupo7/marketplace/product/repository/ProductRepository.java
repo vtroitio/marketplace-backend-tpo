@@ -1,9 +1,9 @@
-package com.uade.tpo.grupo7.marketplace.products.repository;
+package com.uade.tpo.grupo7.marketplace.product.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.product.entity.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {}

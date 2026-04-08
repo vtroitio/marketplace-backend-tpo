@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.products.entity;
+package com.uade.tpo.grupo7.marketplace.product.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
