@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.user.entity;
+package com.uade.tpo.grupo7.marketplace.users.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

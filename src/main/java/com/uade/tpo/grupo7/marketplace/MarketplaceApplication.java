@@ -5,8 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.uade.tpo.grupo7.marketplace.product.entity.Product;
-import com.uade.tpo.grupo7.marketplace.product.repository.ProductRepository;
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 
 import java.util.TimeZone;
 

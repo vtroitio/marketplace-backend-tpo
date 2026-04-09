@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.product.service;
+package com.uade.tpo.grupo7.marketplace.products.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.uade.tpo.grupo7.marketplace.product.dto.CreateProductRequest;
-import com.uade.tpo.grupo7.marketplace.product.dto.UpdateProductRequest;
-import com.uade.tpo.grupo7.marketplace.product.entity.Product;
-import com.uade.tpo.grupo7.marketplace.product.mapper.ProductMapper;
-import com.uade.tpo.grupo7.marketplace.product.repository.ProductRepository;
+import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 
 @Service
 public class ProductService {

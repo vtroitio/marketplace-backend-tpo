@@ -1,12 +1,12 @@
-package com.uade.tpo.grupo7.marketplace.user.config;
+package com.uade.tpo.grupo7.marketplace.users.config;
 
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.uade.tpo.grupo7.marketplace.user.entity.Role;
-import com.uade.tpo.grupo7.marketplace.user.repository.RoleRepository;
+import com.uade.tpo.grupo7.marketplace.users.entity.Role;
+import com.uade.tpo.grupo7.marketplace.users.repository.RoleRepository;
 
 @Component
 public class RoleSeeder implements CommandLineRunner {

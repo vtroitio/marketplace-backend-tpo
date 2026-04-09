@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo7.marketplace.product.mapper;
+package com.uade.tpo.grupo7.marketplace.products.mapper;
 
-import com.uade.tpo.grupo7.marketplace.product.dto.CreateProductRequest;
-import com.uade.tpo.grupo7.marketplace.product.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 
 /**
  * Class responsible for mapping Product-related DTOs
