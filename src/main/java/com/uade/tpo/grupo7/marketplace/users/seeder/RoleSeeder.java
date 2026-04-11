@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.users.config;
+package com.uade.tpo.grupo7.marketplace.users.seeder;
 
 import java.util.List;
 
