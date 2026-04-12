@@ -41,7 +41,7 @@ public class UserSession {
     private User user;
 
     @Column(nullable = false, unique = true)
-    private String tokenHash;
+    private String token;
 
     @Column(nullable = false)
     private UUID familyId;
