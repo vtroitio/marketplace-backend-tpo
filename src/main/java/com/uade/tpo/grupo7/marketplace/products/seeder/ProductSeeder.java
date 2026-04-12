@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.products.config;
+package com.uade.tpo.grupo7.marketplace.products.seeder;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
