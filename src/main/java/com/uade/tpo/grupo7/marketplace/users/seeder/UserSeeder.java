@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.users.seeder;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import com.uade.tpo.grupo7.marketplace.users.repository.RoleRepository;
 import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
 @Component
+@DependsOn("roleSeeder")
 public class UserSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
