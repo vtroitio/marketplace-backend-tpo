@@ -3,6 +3,7 @@ package com.uade.tpo.grupo7.marketplace.users.seeder;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.uade.tpo.grupo7.marketplace.common.enums.RoleCode;
@@ -10,6 +11,7 @@ import com.uade.tpo.grupo7.marketplace.users.entity.Role;
 import com.uade.tpo.grupo7.marketplace.users.repository.RoleRepository;
 
 @Component
+@Order(1)
 public class RoleSeeder implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
@@ -17,19 +19,19 @@ public class RoleSeeder implements CommandLineRunner {
     private final List<Role> roles = List.of(
             Role.builder()
                 .name("Super Administrador")
-                .code(RoleCode.ROLE_SUPER_ADMIN)
+                .code(RoleCode.SUPER_ADMIN)
                 .build(),
             Role.builder()
                 .name("Administrador")
-                .code(RoleCode.ROLE_ADMIN)
-                .build(),
-            Role.builder()
-                .name("Comprador")
-                .code(RoleCode.ROLE_BUYER)
+                .code(RoleCode.ADMIN)
                 .build(),
             Role.builder()
                 .name("Vendedor")
-                .code(RoleCode.ROLE_SELLER)
+                .code(RoleCode.SELLER)
+                .build(),
+            Role.builder()
+                .name("Comprador")
+                .code(RoleCode.BUYER)
                 .build());
 
     public RoleSeeder(RoleRepository roleRepository) {

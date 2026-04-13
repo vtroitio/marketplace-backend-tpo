@@ -17,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "user_session")
 public class UserSession {
 
     @Id
@@ -41,7 +43,7 @@ public class UserSession {
     private User user;
 
     @Column(nullable = false, unique = true)
-    private String tokenHash;
+    private String token;
 
     @Column(nullable = false)
     private UUID familyId;
@@ -72,6 +74,12 @@ public class UserSession {
 
     public boolean isValid() {
         return !this.isRevoked() && !this.isExpired();
+    }
+
+    public void setRevokedAt() {
+        if (this.revokedAt == null) {
+            this.revokedAt = LocalDateTime.now();
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.uade.tpo.grupo7.marketplace.common.exception;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -70,6 +71,21 @@ public class GlobalExceptionHandler {
                                 request.getRequestURI());
 
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ErrorResponse> handleDataIntegrity(
+                DataIntegrityViolationException ex,
+                HttpServletRequest request) {
+
+                ErrorResponse errorResponse = new ErrorResponse(
+                        HttpStatus.CONFLICT.value(),
+                        "Invalid data",
+                        null,
+                        request.getMethod(),
+                        request.getRequestURI());
+
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
         }
 
         @ExceptionHandler(Exception.class)

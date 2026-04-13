@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.users.seeder;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import com.uade.tpo.grupo7.marketplace.users.repository.RoleRepository;
 import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
 @Component
-@DependsOn("roleSeeder")
+@Order(2)
 public class UserSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -31,8 +31,8 @@ public class UserSeeder implements CommandLineRunner {
             return;
         }
 
-        Role superAdminRole = roleRepository.findByCode(RoleCode.ROLE_SUPER_ADMIN)
-                .orElseThrow(() -> new RuntimeException(RoleCode.ROLE_SUPER_ADMIN + " role not found"));
+        Role superAdminRole = roleRepository.findByCode(RoleCode.SUPER_ADMIN)
+                .orElseThrow(() -> new RuntimeException(RoleCode.SUPER_ADMIN + " role not found"));
 
         User superAdminUser = User.builder()
                 .username("super_admin")
