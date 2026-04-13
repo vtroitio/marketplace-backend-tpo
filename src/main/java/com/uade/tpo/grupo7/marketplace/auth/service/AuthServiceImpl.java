@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.auth.domain.AuthTokens;
@@ -90,16 +91,16 @@ public class AuthServiceImpl implements AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         dto.email(),
-                        dto.password()
-                )
-        );
+                        dto.password()));
 
         User user = this.userRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
-        
+
+        this.buildUserSession(user, refreshToken);
+
         return new AuthTokens(accessToken, refreshToken);
     }
 
@@ -111,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
         final UserSession currentSession = this.userSessionRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
-        if(currentSession.getRevokedAt() != null) {
+        if (currentSession.getRevokedAt() != null) {
             return Optional.empty();
         }
 
@@ -136,6 +137,28 @@ public class AuthServiceImpl implements AuthService {
         rotateUserSession(user, currentSession, newRefreshToken);
 
         return Optional.of(new AuthTokens(newAccessToken, newRefreshToken));
+    }
+
+    @Transactional
+    @Override
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            System.out.println("Logout failed: Refresh token is required");
+            return;
+        }
+
+        final UserSession currentSession = this.userSessionRepository.findByToken(refreshToken)
+                .orElse(null);
+
+        if (currentSession == null) {
+            System.out.println("Logout failed: Session not found");
+            return;
+        }
+
+        System.out.println("Logging out session with family ID: " + currentSession.getFamilyId());
+
+        UUID familyId = currentSession.getFamilyId();
+        this.userSessionRepository.deleteAllByFamilyId(familyId);
     }
 
     private void rotateUserSession(User user, UserSession currentSession, String newRefreshToken) {

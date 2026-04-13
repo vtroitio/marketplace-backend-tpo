@@ -12,4 +12,6 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
     Optional<UserSession> findByToken(String jwtToken);
 
     List<UserSession> findAllByFamilyId(UUID familyId);
+
+    void deleteAllByFamilyId(UUID familyId);
 }

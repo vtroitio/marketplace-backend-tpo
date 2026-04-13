@@ -77,11 +77,22 @@ public class AuthController {
                 .body(new AuthResponse(tokens.get().accessToken()));
     }
 
+    @PostMapping("logout")
+    public ResponseEntity<Void> logout(@CookieValue(required = false) String refreshToken) {
+        this.authService.logout(refreshToken);        
+
+        ResponseCookie deleteCookie = clearRefreshTokenCookie();
+        
+        return ResponseEntity.noContent()
+                .header("Set-Cookie", deleteCookie.toString())        
+                .build();
+    }
+
     private ResponseCookie clearRefreshTokenCookie() {
         return ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(false)
-                .path("/auth/refresh")
+                .path("/auth")
                 .maxAge(Duration.ZERO)
                 .sameSite("Strict")
                 .build();
@@ -91,7 +102,7 @@ public class AuthController {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(false)
-                .path("/auth/refresh")
+                .path("/auth")
                 .maxAge(Duration.ofMillis(this.refreshTokenExpiration))
                 .sameSite("Strict")
                 .build();

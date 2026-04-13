@@ -26,12 +26,12 @@ public class RoleSeeder implements CommandLineRunner {
                 .code(RoleCode.ADMIN)
                 .build(),
             Role.builder()
-                .name("Comprador")
-                .code(RoleCode.BUYER)
-                .build(),
-            Role.builder()
                 .name("Vendedor")
                 .code(RoleCode.SELLER)
+                .build(),
+            Role.builder()
+                .name("Comprador")
+                .code(RoleCode.BUYER)
                 .build());
 
     public RoleSeeder(RoleRepository roleRepository) {

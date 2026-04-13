@@ -24,6 +24,23 @@ public interface AuthService {
      */
     AuthTokens login(LoginRequest dto);
 
+    /**
+     * Refreshes the authentication tokens using the provided refresh token.
+     *
+     * @param refreshToken the refresh token used to obtain new authentication tokens
+     * @return an {@code Optional} containing the new {@link AuthTokens} if the refresh was successful,
+     *         or an empty {@code Optional} if the refresh token is invalid or expired
+     */
     Optional<AuthTokens> refresh(String refreshToken);
+
+    /**
+     * Logs out a user by invalidating their refresh token.
+     * 
+     * This method terminates the user session by invalidating the provided refresh token,
+     * preventing further authentication requests using that token.
+     * 
+     * @param refreshToken the refresh token to be invalidated for logout
+     */
+    void logout(String refreshToken);
 
 }
