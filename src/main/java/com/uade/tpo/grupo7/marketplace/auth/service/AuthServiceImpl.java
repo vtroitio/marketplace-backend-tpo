@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.grupo7.marketplace.auth.domain.AuthTokens;
 import com.uade.tpo.grupo7.marketplace.auth.dto.AuthResponse;
 import com.uade.tpo.grupo7.marketplace.auth.dto.LoginRequest;
 import com.uade.tpo.grupo7.marketplace.auth.dto.RegisterRequest;
+import com.uade.tpo.grupo7.marketplace.auth.security.JwtService;
 import com.uade.tpo.grupo7.marketplace.auth.sessions.entity.UserSession;
 import com.uade.tpo.grupo7.marketplace.auth.sessions.repository.UserSessionRepository;
 import com.uade.tpo.grupo7.marketplace.common.enums.RoleCode;
@@ -41,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse register(RegisterRequest dto) {
+    public AuthTokens register(RegisterRequest dto) {
         String passwordHash = this.passwordEncoder.encode(dto.password());
         Role buyerRole = this.roleRepository.findByCode(RoleCode.ROLE_BUYER)
                 .orElseThrow(() -> new RuntimeException("Buyer role not found"));
@@ -61,11 +63,11 @@ public class AuthServiceImpl implements AuthService {
 
         this.buildUserSession(savedUser, refreshToken);
 
-        return new AuthResponse(accessToken);
+        return new AuthTokens(accessToken, refreshToken);
     }
 
     @Override
-    public AuthResponse login(LoginRequest dto) {
+    public AuthTokens login(LoginRequest dto) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'login'");
     }

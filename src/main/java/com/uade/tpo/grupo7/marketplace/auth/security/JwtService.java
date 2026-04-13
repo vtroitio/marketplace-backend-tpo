@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.auth.service;
+package com.uade.tpo.grupo7.marketplace.auth.security;
 
 import java.util.Date;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
@@ -46,6 +47,32 @@ public class JwtService {
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String extractUsername(String jwtToken) {
+        return Jwts.parser()
+            .verifyWith(this.getSignInKey())
+            .build()
+            .parseSignedClaims(jwtToken)
+            .getPayload()
+            .getSubject();
+    }
+
+    public boolean isTokenValid(String token, User user) {
+        return (extractUsername(token).equals(user.getEmail())) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return Jwts.parser()
+            .verifyWith(this.getSignInKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getExpiration();
     }
 
 }
