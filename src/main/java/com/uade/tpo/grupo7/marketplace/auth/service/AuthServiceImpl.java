@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.auth.service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -103,9 +103,60 @@ public class AuthServiceImpl implements AuthService {
         return new AuthTokens(accessToken, refreshToken);
     }
 
+    public Optional<AuthTokens> refresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token is required");
+        }
+
+        final UserSession currentSession = this.userSessionRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+        if(currentSession.getRevokedAt() != null) {
+            return Optional.empty();
+        }
+
+        final String userEmail = this.jwtService.extractUsername(refreshToken);
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+        }
+
+        final User user = this.userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!this.jwtService.isTokenValid(refreshToken, user)) {
+            return Optional.empty();
+        }
+
+        String newAccessToken = this.jwtService.generateAccessToken(user);
+        String newRefreshToken = this.jwtService.generateRefreshToken(user);
+
+        currentSession.setRevokedAt(LocalDateTime.now());
+        this.userSessionRepository.save(currentSession);
+        rotateUserSession(user, currentSession, newRefreshToken);
+
+        return Optional.of(new AuthTokens(newAccessToken, newRefreshToken));
+    }
+
+    private void rotateUserSession(User user, UserSession currentSession, String newRefreshToken) {
+        LocalDateTime expiresAt = this.jwtService.extractExpiration(newRefreshToken).toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        UserSession session = UserSession.builder()
+                .user(user)
+                .token(newRefreshToken)
+                .familyId(currentSession.getFamilyId())
+                .expiresAt(expiresAt)
+                .build();
+
+        this.userSessionRepository.save(session);
+    }
+
     private void buildUserSession(User user, String refreshToken) {
-        LocalDateTime expiresAt = LocalDateTime.now()
-                .plus(Duration.ofMillis(this.refreshTokenExpiration));
+        LocalDateTime expiresAt = this.jwtService.extractExpiration(refreshToken).toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDateTime();
 
         UserSession session = UserSession.builder()
                 .user(user)

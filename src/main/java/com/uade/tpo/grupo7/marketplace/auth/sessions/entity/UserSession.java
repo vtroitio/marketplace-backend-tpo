@@ -76,4 +76,10 @@ public class UserSession {
         return !this.isRevoked() && !this.isExpired();
     }
 
+    public void setRevokedAt() {
+        if (this.revokedAt == null) {
+            this.revokedAt = LocalDateTime.now();
+        }
+    }
+
 }

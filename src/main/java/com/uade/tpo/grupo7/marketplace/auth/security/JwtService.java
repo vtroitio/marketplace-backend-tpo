@@ -2,6 +2,7 @@ package com.uade.tpo.grupo7.marketplace.auth.security;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -34,7 +35,7 @@ public class JwtService {
 
     private String buildToken(User user, Long expiration) {
         return Jwts.builder()
-            .id(user.getId().toString())
+            .id(UUID.randomUUID().toString())
             .claims(Map.of("role", user.getRole().getCode()))
             .subject(user.getEmail())
             .issuedAt(new Date(System.currentTimeMillis()))
@@ -65,7 +66,7 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return Jwts.parser()
             .verifyWith(this.getSignInKey())
             .build()

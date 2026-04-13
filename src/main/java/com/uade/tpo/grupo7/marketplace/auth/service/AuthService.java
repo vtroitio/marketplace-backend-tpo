@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.auth.service;
 
+import java.util.Optional;
+
 import com.uade.tpo.grupo7.marketplace.auth.domain.AuthTokens;
 import com.uade.tpo.grupo7.marketplace.auth.dto.LoginRequest;
 import com.uade.tpo.grupo7.marketplace.auth.dto.RegisterRequest;
@@ -21,5 +23,7 @@ public interface AuthService {
      * @return {@link AuthTokens} the authentication tokens for the authenticated user
      */
     AuthTokens login(LoginRequest dto);
+
+    Optional<AuthTokens> refresh(String refreshToken);
 
 }

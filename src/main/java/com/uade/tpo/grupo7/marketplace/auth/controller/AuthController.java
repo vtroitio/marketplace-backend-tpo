@@ -13,10 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -56,15 +59,42 @@ public class AuthController {
                 .body(new AuthResponse(tokens.accessToken()));
     }
 
+    @PostMapping("refresh")
+    public ResponseEntity<AuthResponse> refresh(@CookieValue(required = false) String refreshToken) {
+        Optional<AuthTokens> tokens = this.authService.refresh(refreshToken);
+
+        if (tokens.isEmpty()) {
+            ResponseCookie deleteCookie = clearRefreshTokenCookie();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header("Set-Cookie", deleteCookie.toString())
+                    .build();
+        }
+
+        ResponseCookie refreshCookie = buildRefreshCookie(tokens.get().refreshToken());
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(new AuthResponse(tokens.get().accessToken()));
+    }
+
+    private ResponseCookie clearRefreshTokenCookie() {
+        return ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/auth/refresh")
+                .maxAge(Duration.ZERO)
+                .sameSite("Strict")
+                .build();
+    }
+
     private ResponseCookie buildRefreshCookie(String refreshToken) {
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+        return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(false)
                 .path("/auth/refresh")
                 .maxAge(Duration.ofMillis(this.refreshTokenExpiration))
                 .sameSite("Strict")
                 .build();
-        return refreshCookie;
     }
 
 }
