@@ -45,6 +45,17 @@ public class AuthController {
                 .body(new AuthResponse(tokens.accessToken()));
     }
 
+    @PostMapping("login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest dto) {
+        AuthTokens tokens = this.authService.login(dto);
+
+        ResponseCookie refreshCookie = buildRefreshCookie(tokens.refreshToken());
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(new AuthResponse(tokens.accessToken()));
+    }
+
     private ResponseCookie buildRefreshCookie(String refreshToken) {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)

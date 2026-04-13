@@ -26,7 +26,7 @@ public class AuthConfig {
     @Bean
     UserDetailsService userDetailsService() {
         return username -> {
-            User user = userRepository.findByUsername(username)
+            User user = userRepository.findByEmail(username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
