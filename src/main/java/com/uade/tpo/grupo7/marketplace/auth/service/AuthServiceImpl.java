@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,13 +89,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthTokens login(LoginRequest dto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        dto.email(),
-                        dto.password()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            dto.email(),
+                            dto.password()));
+        } catch (AuthenticationException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
 
         User user = this.userRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
@@ -106,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
 
     public Optional<AuthTokens> refresh(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token is required");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
 
         final UserSession currentSession = this.userSessionRepository.findByToken(refreshToken)
@@ -123,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         final User user = this.userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
         if (!this.jwtService.isTokenValid(refreshToken, user)) {
             return Optional.empty();
@@ -143,7 +148,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            System.out.println("Logout failed: Refresh token is required");
             return;
         }
 
@@ -151,11 +155,8 @@ public class AuthServiceImpl implements AuthService {
                 .orElse(null);
 
         if (currentSession == null) {
-            System.out.println("Logout failed: Session not found");
             return;
         }
-
-        System.out.println("Logging out session with family ID: " + currentSession.getFamilyId());
 
         UUID familyId = currentSession.getFamilyId();
         this.userSessionRepository.deleteAllByFamilyId(familyId);
