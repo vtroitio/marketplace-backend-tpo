@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("auth")
-@Tag(name = "Auth", description = "Endpoints de autenticación y autorización del marketplace")
+@Tag(name = "Auth", description = "Endpoints de autenticación del marketplace")
 public class AuthController {
 
     @Value("${application.security.jwt.refresh-token-expiration}")
