@@ -11,5 +11,8 @@ public record UpdateProductRequest(
 
     @Schema(description = "Precio del producto", example = "19.99")
     @Positive(message = "Price must be positive and not 0")
-    Double price
-) {} 
+    Double price,
+
+    @Schema(description = "Descripción del producto", example = "Remera negra de algodón")
+    String description
+) {}

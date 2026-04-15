@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.products.seeder;
 
+import java.time.LocalDateTime;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +11,7 @@ import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 @Component
 public class ProductSeeder implements CommandLineRunner {
 
-   private final ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public ProductSeeder(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -26,9 +28,10 @@ public class ProductSeeder implements CommandLineRunner {
                 Product.builder()
                     .name("Remera " + i)
                     .price(10.0 * i)
+                    .description("Remera de anime número " + i)
+                    .createdAt(LocalDateTime.now())
                     .build()
-                );
-			}
+            );
+        }
     }
-
 }

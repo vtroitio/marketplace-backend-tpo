@@ -22,11 +22,11 @@ public class ProductService {
     }
 
     /**
-    * Retrieves a paginated list of products from the repository.
-    *
-    * @param pageable the pagination information (page number, page size, sorting)
-    * @return a page of products matching the pagination criteria
-    */
+     * Retrieves a paginated list of products from the repository.
+     *
+     * @param pageable the pagination information (page number, page size, sorting)
+     * @return a page of products matching the pagination criteria
+     */
     public Page<Product> getProducts(Pageable pageable) {
         return this.productRepository.findAll(pageable);
     }
@@ -51,8 +51,7 @@ public class ProductService {
     }
 
     /**
-     * Creates a new product from the provided DTO and stores it in the
-     * repository.
+     * Creates a new product from the provided DTO and stores it in the repository.
      *
      * <p>
      * The DTO is first converted into a {@link Product} entity using
@@ -86,12 +85,16 @@ public class ProductService {
             product.setPrice(dto.price());
         }
 
+        if (dto.description() != null) {
+            product.setDescription(dto.description());
+        }
+
         return this.productRepository.save(product);
     }
 
     /**
      * Deletes a product from the repository by its ID.
-     * 
+     *
      * @param productId the ID of the product to delete
      * @throws ResponseStatusException if the product with the specified ID is not found
      */

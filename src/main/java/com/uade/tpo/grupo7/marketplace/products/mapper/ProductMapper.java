@@ -1,6 +1,9 @@
 package com.uade.tpo.grupo7.marketplace.products.mapper;
 
+import java.time.LocalDateTime;
+
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 
 /**
@@ -9,17 +12,23 @@ import com.uade.tpo.grupo7.marketplace.products.entity.Product;
  */
 public class ProductMapper {
 
-    /**
-     * Converts a {@link CreateProductRequest} into a {@link Product} entity.
-     *
-     * @param dto the data transfer object containing the product
-     *            information provided by the client
-     */
     public static Product toEntitiy(CreateProductRequest dto) {
         return Product.builder()
                 .name(dto.name())
                 .price(dto.price())
+                .description(dto.description())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
+    public static ProductResponse toResponse(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getCreatedAt(),
+                product.getDeletedAt()
+        );
+    }
 }

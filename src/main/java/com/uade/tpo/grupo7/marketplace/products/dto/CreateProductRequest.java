@@ -15,5 +15,9 @@ public record CreateProductRequest(
     @Schema(description = "Precio del producto", example = "19.99")
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive and not 0")
-    Double price
-) {} 
+    Double price,
+
+    @Schema(description = "Descripción del producto", example = "Remera negra de algodón")
+    @NotBlank(message = "Description is required")
+    String description
+) {}
