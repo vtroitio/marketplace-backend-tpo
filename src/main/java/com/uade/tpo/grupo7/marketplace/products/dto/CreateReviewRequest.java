@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo7.marketplace.auth.dto;
+package com.uade.tpo.grupo7.marketplace.products.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
