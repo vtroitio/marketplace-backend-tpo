@@ -148,4 +148,11 @@ public class ProductController {
         return this.productService.uploadProductImages(productId, files);
     }
 
+    @DeleteMapping("{productId}/images/{imgId}")
+    @ApiResponse(responseCode="204")
+    public ResponseEntity<Void> postMethodName(@RequestParam int productId, @RequestParam Long imgId) {        
+        this.productService.deleteProductImage(productId, imgId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

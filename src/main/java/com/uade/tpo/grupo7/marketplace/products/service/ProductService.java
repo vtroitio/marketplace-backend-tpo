@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,8 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService {
@@ -153,6 +156,18 @@ public class ProductService {
         return this.productImageRepository.findAllByProductId(productId);
     }
 
+    @Transactional
+    public void deleteProductImage(int productId, Long imgId) {
+        this.productImageRepository.deleteById(imgId);
+
+        List<ProductImage> images = this.productImageRepository
+            .findByProductIdOrderByPositionAsc(productId);
+
+        for (int i = 0; i < images.size(); i++) {
+            images.get(i).setPosition(i);
+        }
+    }
+
     private String saveFile(MultipartFile file, Integer productId) throws IOException {
         Path uploadPath = Paths.get(uploadDir, "products", productId.toString());
 
@@ -173,4 +188,5 @@ public class ProductService {
 
         return "/uploads/products/" + productId + "/" + fileName;
     }
+
 }
