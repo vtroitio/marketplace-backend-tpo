@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {}
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}

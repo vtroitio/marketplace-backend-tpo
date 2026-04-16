@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
@@ -14,6 +15,7 @@ import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo7.marketplace.products.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,8 +38,15 @@ public class ProductController {
         description = "Obtiene una lista paginada de productos disponibles en el marketplace"
     )
     @ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente")
+    @Parameter(name = "page", description = "Número de página desde 0", example = "0")
+    @Parameter(name = "size", description = "Cantidad de elementos por página", example = "5")
+    @Parameter(
+        name = "sort",
+        description = "Ordenamiento con formato campo,direccion. Ejemplo: id,asc o name,desc",
+        example = "id,asc"
+    )
     public Page<ProductResponse> getProducts(
-            @PageableDefault(page = 0, size = 5) Pageable pageable
+            @ParameterObject @PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable
     ) {
         return this.productService.getProducts(pageable)
                 .map(ProductMapper::toResponse);
@@ -52,17 +61,9 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "Producto encontrado"),
         @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
-    public ProductResponse getProductById(@PathVariable int productId) {
+    public ProductResponse getProductById(@PathVariable Long productId) {
         Product product = this.productService.getProductById(productId);
-
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getPrice(),
-                product.getDescription(),
-                product.getCreatedAt(),
-                product.getDeletedAt()
-        );
+        return ProductMapper.toResponse(product);
     }
 
     @PostMapping
@@ -85,7 +86,7 @@ public class ProductController {
         description = "Actualiza parcialmente un producto existente"
     )
     public ProductResponse updateProduct(
-            @PathVariable int productId,
+            @PathVariable Long productId,
             @Valid @RequestBody UpdateProductRequest dto
     ) {
         Product product = this.productService.updateProduct(productId, dto);
@@ -97,7 +98,7 @@ public class ProductController {
         summary = "Eliminar un producto",
         description = "Elimina un producto del marketplace"
     )
-    public ResponseEntity<Void> deleteProduct(@PathVariable int productId) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
         this.productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }

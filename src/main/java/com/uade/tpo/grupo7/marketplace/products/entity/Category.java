@@ -2,8 +2,6 @@ package com.uade.tpo.grupo7.marketplace.products.entity;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +29,7 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único de la categoría", example = "1")
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     @Schema(description = "Nombre de la categoría", example = "Remeras")
@@ -43,11 +41,10 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    @JsonIgnore
     @Schema(description = "Categoría padre")
     private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    @JsonIgnore
+    @Schema(description = "Subcategorías de la categoría")
     private Set<Category> children;
 }
