@@ -1,24 +1,47 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService {
 
-    private final ProductRepository productRepository;
+    private static final int MAX_IMAGES = 10;
 
-    public ProductService(ProductRepository productRepository) {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+
+    private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+
+    public ProductService(ProductRepository productRepository, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
     }
 
     /**
@@ -99,4 +122,71 @@ public class ProductService {
         this.getProductById(productId);
         this.productRepository.deleteById(productId);
     }
+
+    public List<ProductImage> uploadProductImages(int productId, List<MultipartFile> files) {
+        final int currentImages = this.productImageRepository.countByProductId(productId);
+
+        if (currentImages + files.size() > MAX_IMAGES) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                "Cannot upload more than " + MAX_IMAGES + " images for a product.");
+        }
+
+        Product product = this.getProductById(productId);
+
+        int position = currentImages;
+        for (MultipartFile file : files) {            
+            try {
+                String filePath = this.saveFile(file, productId);
+                ProductImage productImage = ProductImage.builder()
+                    .product(product)
+                    .position(position)
+                    .path(filePath)
+                    .build();
+                this.productImageRepository.save(productImage);
+                position++;
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Error saving file: " + file.getOriginalFilename());
+            }
+        }
+
+        return this.productImageRepository.findAllByProductId(productId);
+    }
+
+    @Transactional
+    public void deleteProductImage(int productId, Long imgId) {
+        this.productImageRepository.deleteById(imgId);
+
+        List<ProductImage> images = this.productImageRepository
+            .findByProductIdOrderByPositionAsc(productId);
+
+        for (int i = 0; i < images.size(); i++) {
+            images.get(i).setPosition(i);
+        }
+    }
+
+    private String saveFile(MultipartFile file, Integer productId) throws IOException {
+        Path uploadPath = Paths.get(uploadDir, "products", productId.toString());
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String originalName = file.getOriginalFilename();
+
+        String extension = Optional.ofNullable(originalName)
+            .filter(name -> name.contains("."))
+            .map(name -> name.substring(name.lastIndexOf(".")))
+            .orElse("");
+
+        String fileName = UUID.randomUUID() + extension;
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath);
+
+        return "/uploads/products/" + productId + "/" + fileName;
+    }
+
 }
