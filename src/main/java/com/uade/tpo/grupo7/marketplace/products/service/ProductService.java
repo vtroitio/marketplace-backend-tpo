@@ -1,24 +1,44 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 @Service
 public class ProductService {
 
-    private final ProductRepository productRepository;
+    private static final int MAX_IMAGES = 10;
 
-    public ProductService(ProductRepository productRepository) {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+
+    private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+
+    public ProductService(ProductRepository productRepository, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
     }
 
     /**
@@ -98,5 +118,51 @@ public class ProductService {
     public void deleteProduct(int productId) throws ResponseStatusException {
         this.getProductById(productId);
         this.productRepository.deleteById(productId);
+    }
+
+    public List<ProductImage> uploadProductImages(int productId, List<MultipartFile> files) {
+        final int currentImages = this.productImageRepository.countByProductId(productId);
+
+        if (currentImages + files.size() > MAX_IMAGES) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                "Cannot upload more than " + MAX_IMAGES + " images for a product.");
+        }
+
+        Product product = this.getProductById(productId);
+
+        int order = currentImages;
+        for (MultipartFile file : files) {
+            try {
+                String filePath = this.saveFile(file);
+                ProductImage productImage = ProductImage.builder()
+                    .product(product)
+                    .order(order)
+                    .path(filePath)
+                    .build();
+                this.productImageRepository.save(productImage);
+                order++;
+            } catch (IOException e) {
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Error saving file: " + file.getOriginalFilename());
+            }
+        }
+
+        return this.productImageRepository.findAllByProductId(productId);
+    }
+
+    private String saveFile(MultipartFile file) throws IOException {
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String originalName = file.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + originalName;
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath);
+
+        return filePath.toString();
     }
 }

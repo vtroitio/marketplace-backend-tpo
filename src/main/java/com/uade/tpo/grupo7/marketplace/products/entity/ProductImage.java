@@ -1,13 +1,14 @@
 package com.uade.tpo.grupo7.marketplace.products.entity;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,23 +21,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Entidad que representa un producto en el marketplace")
-public class Product {
+public class ProductImage {
 
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    @Schema(description = "Identificador único del producto", example = "1")
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
-    @Schema(description = "Nombre del producto", example = "Remera Negra")
-    private String name;
+    private String path;
 
     @Column(nullable = false)
-    @Schema(description = "Precio del producto", example = "19.99")
-    private Double price;
+    private Integer order;
 
-    @OneToMany(mappedBy = "product")
-    @Schema(description = "Lista de imágenes asociadas al producto")
-    private List<ProductImage> images;
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
+    private Product product;
+
 }
