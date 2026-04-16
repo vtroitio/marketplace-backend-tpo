@@ -3,13 +3,15 @@ package com.uade.tpo.grupo7.marketplace.products.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 
-public interface ProductImageRepository extends JpaRepository<ProductImage, Integer> {
+@Repository
+public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 
-    int countByProductId(int productId);
+    int countByProductId(Integer productId);
 
-    List<ProductImage> findAllByProductId(int productId);
+    List<ProductImage> findAllByProductId(Integer productId);
 
 }

@@ -3,12 +3,14 @@ package com.uade.tpo.grupo7.marketplace.common.exception;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -20,6 +22,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+        @Value("${spring.servlet.multipart.max-file-size}")
+        private String maxFileSize;
+        @Value("${spring.servlet.multipart.max-request-size}")
+        private String maxRequestSize;
 
         @ExceptionHandler(ResponseStatusException.class)
         public ResponseEntity<ErrorResponse> handleResponseStatusException(

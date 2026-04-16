@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +23,6 @@ import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.service.ProductService;
-import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

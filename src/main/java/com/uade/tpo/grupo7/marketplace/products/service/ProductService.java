@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,6 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
-import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 @Service
 public class ProductService {
@@ -131,18 +131,19 @@ public class ProductService {
 
         Product product = this.getProductById(productId);
 
-        int order = currentImages;
-        for (MultipartFile file : files) {
+        int position = currentImages;
+        for (MultipartFile file : files) {            
             try {
-                String filePath = this.saveFile(file);
+                String filePath = this.saveFile(file, productId);
                 ProductImage productImage = ProductImage.builder()
                     .product(product)
-                    .order(order)
+                    .position(position)
                     .path(filePath)
                     .build();
                 this.productImageRepository.save(productImage);
-                order++;
+                position++;
             } catch (IOException e) {
+                e.printStackTrace();
                 throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, 
                     "Error saving file: " + file.getOriginalFilename());
@@ -152,17 +153,24 @@ public class ProductService {
         return this.productImageRepository.findAllByProductId(productId);
     }
 
-    private String saveFile(MultipartFile file) throws IOException {
-        Path uploadPath = Paths.get(uploadDir);
+    private String saveFile(MultipartFile file, Integer productId) throws IOException {
+        Path uploadPath = Paths.get(uploadDir, "products", productId.toString());
+
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
         String originalName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID() + "_" + originalName;
+
+        String extension = Optional.ofNullable(originalName)
+            .filter(name -> name.contains("."))
+            .map(name -> name.substring(name.lastIndexOf(".")))
+            .orElse("");
+
+        String fileName = UUID.randomUUID() + extension;
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
 
-        return filePath.toString();
+        return "/uploads/products/" + productId + "/" + fileName;
     }
 }

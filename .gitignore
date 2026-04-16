@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 /docker_pgadmin_servers.json/
+/uploads/**
 
 ### STS ###
 .apt_generated
