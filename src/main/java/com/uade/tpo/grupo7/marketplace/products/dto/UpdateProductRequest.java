@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.products.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Positive;
 
@@ -11,5 +13,11 @@ public record UpdateProductRequest(
 
     @Schema(description = "Precio del producto", example = "19.99")
     @Positive(message = "Price must be positive and not 0")
-    Double price
-) {} 
+    Double price,
+
+    @Schema(description = "Descripción del producto", example = "Remera negra de algodón")
+    String description,
+
+    @Schema(description = "Lista de IDs de categorías asociadas", example = "[1, 2]")
+    List<Long> categoryIds
+) {}

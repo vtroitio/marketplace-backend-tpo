@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.products.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +17,12 @@ public record CreateProductRequest(
     @Schema(description = "Precio del producto", example = "19.99")
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive and not 0")
-    Double price
-) {} 
+    Double price,
+
+    @Schema(description = "Descripción del producto", example = "Remera negra de algodón")
+    @NotBlank(message = "Description is required")
+    String description,
+
+    @Schema(description = "Lista de IDs de categorías asociadas", example = "[1, 2]")
+    List<Long> categoryIds
+) {}

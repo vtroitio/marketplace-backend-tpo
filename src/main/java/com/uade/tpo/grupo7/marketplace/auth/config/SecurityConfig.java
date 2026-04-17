@@ -25,18 +25,18 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(req -> 
-                    req.requestMatchers(
+            .authorizeHttpRequests(req ->
+                req
+                    .requestMatchers(
                         "/auth/**",
-                        "/swagger-ui/**",
                         "/v3/api-docs/**",
+                        "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/uploads/**",
-                        "/products/**"
-                    )
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()
+                        "/products/**",
+                        "/categories/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
@@ -44,5 +44,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
