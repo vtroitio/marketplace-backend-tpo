@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -140,6 +141,7 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
     public List<ProductImage> uploadProductImage(
         @PathVariable int productId,
@@ -148,6 +150,7 @@ public class ProductController {
         return this.productService.uploadProductImages(productId, files);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @DeleteMapping("{productId}/images/{imgId}")
     @ApiResponse(responseCode="204")
     public ResponseEntity<Void> postMethodName(@RequestParam int productId, @RequestParam Long imgId) {        

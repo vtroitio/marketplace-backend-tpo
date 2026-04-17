@@ -24,6 +24,8 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
+import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -36,10 +38,13 @@ public class ProductService {
     private String uploadDir;
 
 
+    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
 
-    public ProductService(ProductRepository productRepository, ProductImageRepository productImageRepository) {
+    public ProductService(UserRepository userRepository, ProductRepository productRepository,
+            ProductImageRepository productImageRepository) {
+        this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
     }
@@ -124,6 +129,9 @@ public class ProductService {
     }
 
     public List<ProductImage> uploadProductImages(int productId, List<MultipartFile> files) {
+
+        Product product = this.getProductById(productId);
+
         final int currentImages = this.productImageRepository.countByProductId(productId);
 
         if (currentImages + files.size() > MAX_IMAGES) {
@@ -131,8 +139,6 @@ public class ProductService {
                 HttpStatus.BAD_REQUEST, 
                 "Cannot upload more than " + MAX_IMAGES + " images for a product.");
         }
-
-        Product product = this.getProductById(productId);
 
         int position = currentImages;
         for (MultipartFile file : files) {            
