@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,6 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
-import com.uade.tpo.grupo7.marketplace.users.entity.User;
 import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -38,13 +38,11 @@ public class ProductService {
     private String uploadDir;
 
 
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
 
     public ProductService(UserRepository userRepository, ProductRepository productRepository,
             ProductImageRepository productImageRepository) {
-        this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
     }
@@ -164,7 +162,17 @@ public class ProductService {
 
     @Transactional
     public void deleteProductImage(int productId, Long imgId) {
-        this.productImageRepository.deleteById(imgId);
+        ProductImage image = this.productImageRepository
+            .findById(imgId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND
+            ));
+
+        if (image.getProduct().getId() != productId) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        this.productImageRepository.delete(image);
 
         List<ProductImage> images = this.productImageRepository
             .findByProductIdOrderByPositionAsc(productId);
@@ -172,6 +180,8 @@ public class ProductService {
         for (int i = 0; i < images.size(); i++) {
             images.get(i).setPosition(i);
         }
+
+        this.productImageRepository.saveAll(images);
     }
 
     private String saveFile(MultipartFile file, Integer productId) throws IOException {
@@ -193,6 +203,38 @@ public class ProductService {
         Files.copy(file.getInputStream(), filePath);
 
         return "/uploads/products/" + productId + "/" + fileName;
+    }
+
+    public void reorderProductImages(int productId, List<Long> orderedIds) {
+        List<ProductImage> images = this.productImageRepository
+            .findAllByProductId(productId);
+
+        if (images.size() != orderedIds.size()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Mismatch between existing images and provided order"
+            );
+        }
+
+        Map<Long, ProductImage> imageMap = images.stream()
+            .collect(Collectors.toMap(ProductImage::getId, img -> img));
+
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long id = orderedIds.get(i);
+
+            ProductImage image = imageMap.get(id);
+
+            if (image == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid image id: " + id
+                );
+            }
+
+            image.setPosition(i);
+        }
+
+        this.productImageRepository.saveAll(images);
     }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -143,7 +144,7 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
-    public List<ProductImage> uploadProductImage(
+    public List<ProductImage> uploadProductImages(
         @PathVariable int productId,
         @RequestParam List<MultipartFile> files
     ) {
@@ -151,9 +152,22 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('SELLER')")
+    @PutMapping("{productId}/images/order")
+    public ResponseEntity<Void> reorderProductImages(
+        @PathVariable int productId,
+        @RequestBody List<Long> orderedIds
+    ) {
+        this.productService.reorderProductImages(productId, orderedIds);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
     @DeleteMapping("{productId}/images/{imgId}")
     @ApiResponse(responseCode="204")
-    public ResponseEntity<Void> postMethodName(@RequestParam int productId, @RequestParam Long imgId) {        
+    public ResponseEntity<Void> deleteProductImage(
+        @PathVariable int productId,
+        @PathVariable Long imgId
+    ) {        
         this.productService.deleteProductImage(productId, imgId);
         return ResponseEntity.noContent().build();
     }
