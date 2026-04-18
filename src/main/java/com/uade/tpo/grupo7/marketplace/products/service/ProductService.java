@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -19,14 +23,22 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductVariantRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductVariantRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.VariantAttributeValueRequest;
+import com.uade.tpo.grupo7.marketplace.products.entity.AttributeValue;
 import com.uade.tpo.grupo7.marketplace.products.entity.Category;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
+import com.uade.tpo.grupo7.marketplace.products.entity.ProductVariant;
+import com.uade.tpo.grupo7.marketplace.products.entity.VariantAttributeValue;
 import com.uade.tpo.grupo7.marketplace.products.mapper.ProductMapper;
+import com.uade.tpo.grupo7.marketplace.products.repository.AttributeValueRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.CategoryRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductVariantRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -41,15 +53,21 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final AttributeValueRepository attributeValueRepository;
 
     public ProductService(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
-        ProductImageRepository productImageRepository
+        ProductImageRepository productImageRepository,
+        ProductVariantRepository productVariantRepository,
+        AttributeValueRepository attributeValueRepository
     ) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productImageRepository = productImageRepository;
+        this.productVariantRepository = productVariantRepository;
+        this.attributeValueRepository = attributeValueRepository;
     }
 
     public Page<Product> getProducts(Pageable pageable) {
@@ -67,6 +85,7 @@ public class ProductService {
     public Product createProduct(CreateProductRequest dto) {
         Product product = ProductMapper.toEntitiy(dto);
         product.setCategories(this.resolveCategories(dto.categoryIds()));
+        product.setVariants(this.buildVariants(dto.variants(), product));
 
         return this.productRepository.save(product);
     }
@@ -88,6 +107,10 @@ public class ProductService {
 
         if (dto.categoryIds() != null) {
             product.setCategories(this.resolveCategories(dto.categoryIds()));
+        }
+
+        if (dto.variants() != null) {
+            product.setVariants(this.mergeVariants(product, dto.variants()));
         }
 
         return this.productRepository.save(product);
@@ -120,6 +143,153 @@ public class ProductService {
         }
 
         return new HashSet<>(foundCategories);
+    }
+
+    private List<ProductVariant> buildVariants(List<CreateProductVariantRequest> variants, Product product) {
+        if (variants == null || variants.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        this.validateDuplicatedSkus(variants.stream().map(CreateProductVariantRequest::sku).toList());
+
+        return variants.stream()
+                .map(variantDto -> {
+                    this.validateSkuAvailability(variantDto.sku(), null);
+                    ProductVariant variant = ProductVariant.builder()
+                            .sku(variantDto.sku())
+                            .price(variantDto.price())
+                            .stock(variantDto.stock())
+                            .createdAt(LocalDateTime.now())
+                            .product(product)
+                            .build();
+                    variant.setAttributeValues(this.buildVariantAttributeValues(variantDto.attributeValues(), variant));
+                    return variant;
+                })
+                .toList();
+    }
+
+    private List<ProductVariant> mergeVariants(Product product, List<UpdateProductVariantRequest> variants) {
+        if (variants.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        this.validateDuplicatedSkus(variants.stream().map(UpdateProductVariantRequest::sku).toList());
+
+        Map<Integer, ProductVariant> currentVariants = new HashMap<>();
+        List<ProductVariant> existingVariants = product.getVariants() == null ? List.of() : product.getVariants();
+        for (ProductVariant variant : existingVariants) {
+            currentVariants.put(variant.getId(), variant);
+        }
+
+        List<ProductVariant> mergedVariants = new ArrayList<>();
+        for (UpdateProductVariantRequest variantDto : variants) {
+            ProductVariant variant;
+
+            if (variantDto.id() != null) {
+                variant = currentVariants.get(variantDto.id());
+                if (variant == null) {
+                    throw new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Variant not found for product: " + variantDto.id()
+                    );
+                }
+            } else {
+                variant = ProductVariant.builder()
+                        .createdAt(LocalDateTime.now())
+                        .build();
+            }
+
+            this.validateSkuAvailability(variantDto.sku(), variant.getId());
+
+            variant.setSku(variantDto.sku());
+            if (variantDto.price() != null) {
+                variant.setPrice(variantDto.price());
+            }
+            if (variantDto.stock() != null) {
+                variant.setStock(variantDto.stock());
+            }
+            variant.setProduct(product);
+            variant.setAttributeValues(this.buildVariantAttributeValues(variantDto.attributeValues(), variant));
+            mergedVariants.add(variant);
+        }
+
+        return mergedVariants;
+    }
+
+    private List<VariantAttributeValue> buildVariantAttributeValues(
+        List<VariantAttributeValueRequest> attributeValues,
+        ProductVariant variant
+    ) {
+        if (attributeValues == null || attributeValues.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Each variant must include at least one attribute value"
+            );
+        }
+
+        Set<Long> requestedIds = attributeValues.stream()
+                .map(VariantAttributeValueRequest::attributeValueId)
+                .collect(java.util.stream.Collectors.toSet());
+
+        if (requestedIds.size() != attributeValues.size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Attribute values must not be duplicated within the same variant"
+            );
+        }
+
+        List<AttributeValue> foundValues = this.attributeValueRepository.findAllById(requestedIds);
+        if (foundValues.size() != requestedIds.size()) {
+            Set<Long> foundIds = foundValues.stream()
+                    .map(AttributeValue::getId)
+                    .collect(java.util.stream.Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(requestedIds);
+            missingIds.removeAll(foundIds);
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Attribute values not found: " + missingIds
+            );
+        }
+
+        Set<Long> attributeIds = foundValues.stream()
+                .map(value -> value.getAttribute().getId())
+                .collect(java.util.stream.Collectors.toSet());
+        if (attributeIds.size() != foundValues.size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "A variant cannot have two values for the same attribute"
+            );
+        }
+
+        return foundValues.stream()
+                .map(attributeValue -> VariantAttributeValue.builder()
+                        .variant(variant)
+                        .attributeValue(attributeValue)
+                        .build())
+                .toList();
+    }
+
+    private void validateDuplicatedSkus(List<String> skus) {
+        Set<String> uniqueSkus = new HashSet<>(skus);
+        if (uniqueSkus.size() != skus.size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Variant SKUs must be unique within the same product"
+            );
+        }
+    }
+
+    private void validateSkuAvailability(String sku, Integer variantId) {
+        boolean alreadyExists = variantId == null
+                ? this.productVariantRepository.existsBySku(sku)
+                : this.productVariantRepository.existsBySkuAndIdNot(sku, variantId);
+
+        if (alreadyExists) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Variant SKU already exists: " + sku
+            );
+        }
     }
 
     public List<ProductImage> uploadProductImages(Long productId, List<MultipartFile> files) {

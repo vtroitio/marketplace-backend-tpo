@@ -10,5 +10,7 @@ public record ProductResponse(
     String name,
     Double price,
     String description,
-    List<CategoryResponse> categories
-) {}
+    List<CategoryResponse> categories,
+    List<ProductVariantResponse> variants
+) {
+}

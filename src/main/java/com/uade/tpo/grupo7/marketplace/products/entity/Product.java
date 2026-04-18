@@ -36,7 +36,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador Ãºnico del producto", example = "1")
+    @Schema(description = "Identificador unico del producto", example = "1")
     private Long id;
 
     @Column(nullable = false)
@@ -48,7 +48,7 @@ public class Product {
     private Double price;
 
     @Column(nullable = false)
-    @Schema(description = "DescripciÃ³n del producto", example = "Remera negra de algodÃ³n")
+    @Schema(description = "Descripcion del producto", example = "Remera negra de algodon")
     private String description;
 
     @ManyToOne
@@ -57,10 +57,10 @@ public class Product {
     private User seller;
 
     @Column(nullable = false, updatable = false)
-    @Schema(description = "Fecha de creaciÃ³n del producto")
+    @Schema(description = "Fecha de creacion del producto")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Fecha de borrado lÃ³gico del producto")
+    @Schema(description = "Fecha de borrado logico del producto")
     private LocalDateTime deletedAt;
 
     @ManyToMany
@@ -69,15 +69,15 @@ public class Product {
         joinColumns = @JoinColumn(name = "product_id"),
         inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    @Schema(description = "CategorÃ­as asociadas al producto")
+    @Schema(description = "Categorias asociadas al producto")
     private Set<Category> categories;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Schema(description = "Variantes asociadas al producto")
     private List<ProductVariant> variants;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Schema(description = "Lista de imÃ¡genes asociadas al producto")
+    @Schema(description = "Lista de imagenes asociadas al producto")
     private List<ProductImage> images;
 
     @PrePersist
