@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.TimeZone;
 
-@SpringBootApplication()
+@SpringBootApplication
 @EnableJpaAuditing
 public class MarketplaceApplication {
 
-	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-		SpringApplication.run(MarketplaceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        // Setea zona horaria global (recomendado para backend)
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
+        SpringApplication.run(MarketplaceApplication.class, args);
+    }
 }

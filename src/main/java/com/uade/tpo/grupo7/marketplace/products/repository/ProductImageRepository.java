@@ -10,10 +10,10 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 
-    int countByProductId(Integer productId);
+    int countByProductId(Long productId);
 
-    List<ProductImage> findAllByProductId(Integer productId);
+    List<ProductImage> findAllByProductId(Long productId);
 
-    List<ProductImage> findByProductIdOrderByPositionAsc(int productId);
+    List<ProductImage> findByProductIdOrderByPositionAsc(Long productId);
 
 }
