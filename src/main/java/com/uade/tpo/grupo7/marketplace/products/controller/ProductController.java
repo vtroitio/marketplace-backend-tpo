@@ -7,11 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,6 +80,7 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @PostMapping
     @Operation(
         summary = "Crear un nuevo producto",
@@ -92,6 +95,10 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @PatchMapping("{productId}")
     @Operation(
         summary = "Actualizar un producto",
@@ -105,6 +112,10 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}")
     @Operation(
         summary = "Eliminar un producto",
@@ -115,6 +126,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
     public List<ProductImage> uploadProductImage(
         @PathVariable Long productId,
@@ -122,13 +137,30 @@ public class ProductController {
     ) {
         return this.productService.uploadProductImages(productId, files);
     }
+    
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
+    @PutMapping("{productId}/images/order")
+    public ResponseEntity<Void> reorderProductImages(
+        @PathVariable Long productId,
+        @RequestBody List<Long> orderedIds
+    ) {
+        this.productService.reorderProductImages(productId, orderedIds);
+        return ResponseEntity.noContent().build();
+    }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}/images/{imgId}")
-    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode="204")
     public ResponseEntity<Void> deleteProductImage(
         @PathVariable Long productId,
         @PathVariable Long imgId
-    ) {
+    ) {        
         this.productService.deleteProductImage(productId, imgId);
         return ResponseEntity.noContent().build();
     }

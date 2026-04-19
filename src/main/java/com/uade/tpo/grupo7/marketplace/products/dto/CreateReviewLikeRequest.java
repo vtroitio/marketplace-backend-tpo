@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class CreateReviewLikeRequest {
 
-    @NotNull(message = "BuyerId is required")
-    private Integer BuyerId;
+    @NotNull(message = "buyerId is required")
+    private Integer buyerId;
 }

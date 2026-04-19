@@ -9,17 +9,17 @@ import lombok.Data;
 @Data
 public class CreateReviewRequest {
 
-    @NotNull(message = "BuyerId is required")
+    @NotNull(message = "buyerId is required")
     private Integer buyerId;
 
-    @NotNull(message = "Rating is required")
+    @NotNull(message = "rating is required")
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must be at most 5")
     private Integer rating;
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "title is required")
     private String title;
 
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "description is required")
     private String description;
 }

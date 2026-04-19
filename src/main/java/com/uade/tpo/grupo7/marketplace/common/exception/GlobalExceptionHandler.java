@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -27,6 +27,21 @@ public class GlobalExceptionHandler {
         private String maxFileSize;
         @Value("${spring.servlet.multipart.max-request-size}")
         private String maxRequestSize;
+
+        @ExceptionHandler(AuthorizationDeniedException.class)
+        public ResponseEntity<ErrorResponse> handleAuthorizationDenied(
+                AuthorizationDeniedException ex,
+                HttpServletRequest request
+        ) {
+                ErrorResponse errorResponse = new ErrorResponse(
+                        HttpStatus.FORBIDDEN.value(),
+                        "Access Denied",
+                        null, 
+                        request.getMethod(),
+                        request.getRequestURI());
+
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+        }
 
         @ExceptionHandler(ResponseStatusException.class)
         public ResponseEntity<ErrorResponse> handleResponseStatusException(
