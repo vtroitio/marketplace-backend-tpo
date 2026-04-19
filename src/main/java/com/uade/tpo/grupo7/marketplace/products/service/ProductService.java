@@ -6,9 +6,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -123,6 +125,8 @@ public class ProductService {
     }
 
     public List<ProductImage> uploadProductImages(Long productId, List<MultipartFile> files) {
+        Product product = this.getProductById(productId);
+
         final int currentImages = this.productImageRepository.countByProductId(productId);
 
         if (currentImages + files.size() > MAX_IMAGES) {
@@ -131,8 +135,6 @@ public class ProductService {
                 "Cannot upload more than " + MAX_IMAGES + " images for a product."
             );
         }
-
-        Product product = this.getProductById(productId);
 
         int position = currentImages;
         for (MultipartFile file : files) {
@@ -159,7 +161,17 @@ public class ProductService {
 
     @Transactional
     public void deleteProductImage(Long productId, Long imgId) {
-        this.productImageRepository.deleteById(imgId);
+        ProductImage image = this.productImageRepository
+            .findById(imgId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND
+            ));
+
+        if (image.getProduct().getId() != productId) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        this.productImageRepository.delete(image);
 
         List<ProductImage> images = this.productImageRepository
             .findByProductIdOrderByPositionAsc(productId);
@@ -167,6 +179,8 @@ public class ProductService {
         for (int i = 0; i < images.size(); i++) {
             images.get(i).setPosition(i);
         }
+
+        this.productImageRepository.saveAll(images);
     }
 
     private String saveFile(MultipartFile file, Long productId) throws IOException {
@@ -189,4 +203,37 @@ public class ProductService {
 
         return "/uploads/products/" + productId + "/" + fileName;
     }
+
+    public void reorderProductImages(Long productId, List<Long> orderedIds) {
+        List<ProductImage> images = this.productImageRepository
+            .findAllByProductId(productId);
+
+        if (images.size() != orderedIds.size()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Mismatch between existing images and provided order"
+            );
+        }
+
+        Map<Long, ProductImage> imageMap = images.stream()
+            .collect(Collectors.toMap(ProductImage::getId, img -> img));
+
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long id = orderedIds.get(i);
+
+            ProductImage image = imageMap.get(id);
+
+            if (image == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid image id: " + id
+                );
+            }
+
+            image.setPosition(i);
+        }
+
+        this.productImageRepository.saveAll(images);
+    }
+
 }
