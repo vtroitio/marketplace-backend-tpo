@@ -33,6 +33,8 @@ public class UserSeeder implements CommandLineRunner {
 
         Role superAdminRole = roleRepository.findByCode(RoleCode.SUPER_ADMIN)
                 .orElseThrow(() -> new RuntimeException(RoleCode.SUPER_ADMIN + " role not found"));
+        Role sellerRole = roleRepository.findByCode(RoleCode.SELLER)
+                .orElseThrow(() -> new RuntimeException(RoleCode.SELLER + " role not found"));
 
         User superAdminUser = User.builder()
                 .username("super_admin")
@@ -43,7 +45,17 @@ public class UserSeeder implements CommandLineRunner {
                 .role(superAdminRole)
                 .build();
 
+        User sellerUser = User.builder()
+                .username("seller_user")
+                .email("seller@user.com")
+                .passwordHash(passwordEncoder.encode("password"))
+                .name("Seller")
+                .surname("User")
+                .role(sellerRole)
+                .build();
+
         userRepository.save(superAdminUser);
+        userRepository.save(sellerUser);
     }
 
 }
