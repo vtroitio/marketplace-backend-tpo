@@ -80,6 +80,7 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @PostMapping
     @Operation(
         summary = "Crear un nuevo producto",
@@ -94,6 +95,10 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @PatchMapping("{productId}")
     @Operation(
         summary = "Actualizar un producto",
@@ -107,6 +112,10 @@ public class ProductController {
         return ProductMapper.toResponse(product);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}")
     @Operation(
         summary = "Eliminar un producto",
@@ -117,7 +126,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
     public List<ProductImage> uploadProductImage(
         @PathVariable Long productId,
@@ -125,8 +137,11 @@ public class ProductController {
     ) {
         return this.productService.uploadProductImages(productId, files);
     }
-
-    @PreAuthorize("hasRole('SELLER')")
+    
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @PutMapping("{productId}/images/order")
     public ResponseEntity<Void> reorderProductImages(
         @PathVariable Long productId,
@@ -136,7 +151,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('SELLER')")
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}/images/{imgId}")
     @ApiResponse(responseCode="204")
     public ResponseEntity<Void> deleteProductImage(
