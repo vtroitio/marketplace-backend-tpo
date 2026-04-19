@@ -12,4 +12,5 @@ import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByCategories_Id(Long categoryId);
     List<Product> findDistinctByCategories_IdIn(Collection<Long> categoryIds);
+    boolean existsByIdAndSellerIdAndDeletedAtIsNull(Long productId, Long sellerId);
 }
