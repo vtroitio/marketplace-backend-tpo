@@ -9,6 +9,5 @@ import com.uade.tpo.grupo7.marketplace.products.entity.Review;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-
     List<Review> findByProduct_Id(Long productId);
 }

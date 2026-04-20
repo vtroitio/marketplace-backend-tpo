@@ -3,19 +3,19 @@ package com.uade.tpo.grupo7.marketplace.products.mapper;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 import com.uade.tpo.grupo7.marketplace.products.entity.Review;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 public class ReviewMapper {
 
-    private ReviewMapper() {
-    }
+    private ReviewMapper() {}
 
-    public static Review toEntity(CreateReviewRequest request, Product product) {
+    public static Review toEntity(CreateReviewRequest request, Product product, User user) {
         return Review.builder()
                 .product(product)
-                .buyerId(request.getBuyerId())
-                .rating(request.getRating())
-                .title(request.getTitle())
-                .description(request.getDescription())
+                .buyer(user)
+                .rating(request.rating())
+                .title(request.title())
+                .description(request.description())
                 .deletedAt(null)
                 .build();
     }
