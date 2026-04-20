@@ -51,7 +51,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{productId}/reviews")
-    public List<Review> getReviewsByProductId(@PathVariable Long productId) {
+    public List<Review> findAllByDeletedAtIsNullList(@PathVariable Long productId) {
         return reviewService.getReviewsByProductId(productId);
     }
 

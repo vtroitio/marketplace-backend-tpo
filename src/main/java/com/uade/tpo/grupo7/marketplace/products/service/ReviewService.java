@@ -46,7 +46,7 @@ public class ReviewService {
                 "Product with id " + productId + " not found"
         ));
 
-        return reviewRepository.findByProduct_Id(productId);
+        return reviewRepository.findAllByDeletedAtIsNull(productId);
     }
 
     public Review updateReview(Long reviewId, UpdateReviewRequest request, User user) {
@@ -76,6 +76,10 @@ public class ReviewService {
     public Review deleteReview(Long reviewId, User user) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review no encontrada"));
+        
+        if (review.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ya ha sido eliminada");
+        }
 
         if (!review.getBuyer().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para eliminar esta review");
