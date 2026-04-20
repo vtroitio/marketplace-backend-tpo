@@ -28,29 +28,6 @@ public class ReviewService {
         this.productRepository = productRepository;
     }
 
-<<<<<<< HEAD
-    // public Review createReview(Integer productId, CreateReviewRequest request) {
-        // Product product = productRepository.findById(productId)
-                // .orElseThrow(() -> new ResponseStatusException(
-                        // HttpStatus.NOT_FOUND,
-                        // "Product with id " + productId + " not found"
-                // ));
-
-        // Review review = ReviewMapper.toEntity(request, product.getId());
-        // return reviewRepository.create(review);
-    // }
-
-    // public List<Review> getReviewsByProductId(Integer productId) {
-        // productRepository.findById(productId)
-                // .orElseThrow(() -> new ResponseStatusException(
-                        // HttpStatus.NOT_FOUND,
-                        // "Product with id " + productId + " not found"
-                // ));
-
-        // return reviewRepository.findByProductId(productId);
-    // }
-}
-=======
     public Review createReview(Long productId, CreateReviewRequest request, User user) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -112,4 +89,3 @@ public class ReviewService {
         return reviewRepository.save(review);
         }
     }
->>>>>>> 96859d5607ab2f261f3a5a458692b3c5e67047ee
