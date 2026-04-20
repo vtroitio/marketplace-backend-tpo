@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -71,4 +72,16 @@ public class ReviewService {
         
         return reviewRepository.save(review);
     }
-}
+
+    public Review deleteReview(Long reviewId, User user) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review no encontrada"));
+
+        if (!review.getBuyer().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para eliminar esta review");
+        }
+
+        review.setDeletedAt(LocalDateTime.now());
+        return reviewRepository.save(review);
+        }
+    }

@@ -3,7 +3,9 @@ package com.uade.tpo.grupo7.marketplace.products.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ReviewResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Review;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewService;
@@ -59,9 +62,29 @@ public class ReviewController {
             @AuthenticationPrincipal User user
     ) {
         if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
 
         return reviewService.updateReview(reviewId, request, user);
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<ReviewResponse> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal User user
+    ) {
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+
+        Review deletedReview = reviewService.deleteReview(reviewId, user);
+        ReviewResponse response = new ReviewResponse(
+                deletedReview.getId(),
+                deletedReview.getDescription(),
+                deletedReview.getRating(),
+                deletedReview.getDeletedAt()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
