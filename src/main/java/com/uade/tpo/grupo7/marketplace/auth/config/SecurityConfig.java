@@ -52,6 +52,9 @@ public class SecurityConfig {
                 .authenticationEntryPoint((req, res, ex) -> {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 })
+                .accessDeniedHandler((req, res, ex) -> {
+                      res.sendError(HttpServletResponse.SC_FORBIDDEN);
+                })
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
