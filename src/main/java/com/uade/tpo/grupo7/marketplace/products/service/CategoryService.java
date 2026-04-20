@@ -1,7 +1,6 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

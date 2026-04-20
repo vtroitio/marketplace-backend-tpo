@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 @Component("ownership")
 @RequiredArgsConstructor
 public class OwnershipService {
-    
     private final ProductRepository productRepository;
 
     public boolean isProductOwner(Long productId, User user) {       
