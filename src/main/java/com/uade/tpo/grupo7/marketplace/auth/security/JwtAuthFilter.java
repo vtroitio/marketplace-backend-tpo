@@ -50,48 +50,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         String jwtToken = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwtToken);
         if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
         Optional<User> user = userRepository.findByEmail(userDetails.getUsername());
         if (user.isEmpty()) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         boolean isTokenValid = jwtService.isTokenValid(jwtToken, user.get());
         if (!isTokenValid) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         String role = jwtService.extractRole(jwtToken);
 
         List<SimpleGrantedAuthority> authorities = List.of(
-            new SimpleGrantedAuthority("ROLE_" + role)
-        );
+                new SimpleGrantedAuthority("ROLE_" + role));
 
-        GrantedAuthoritiesMapper authoritiesMapper = 
-            new RoleHierarchyAuthoritiesMapper(roleHierarchy);
+        GrantedAuthoritiesMapper authoritiesMapper = new RoleHierarchyAuthoritiesMapper(roleHierarchy);
 
-        Collection<? extends GrantedAuthority> mappedAuthorities =
-            authoritiesMapper.mapAuthorities(authorities);
+        Collection<? extends GrantedAuthority> mappedAuthorities = authoritiesMapper.mapAuthorities(authorities);
 
-        UsernamePasswordAuthenticationToken authToken =
-            new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 user.get(),
                 null,
-                mappedAuthorities
-            );
+                mappedAuthorities);
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
