@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -53,6 +56,7 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "seller_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @Schema(description = "Usuario vendedor del producto")
     private User seller;
 
@@ -85,5 +89,18 @@ public class Product {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+    
+    public boolean isActive() {
+        return this.deletedAt == null;
+    }
+
+    public void softDelete() {
+        if (this.deletedAt != null) return;
+        this.deletedAt = LocalDateTime.now();
     }
 }
