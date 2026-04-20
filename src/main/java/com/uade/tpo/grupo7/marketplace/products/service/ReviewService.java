@@ -23,24 +23,24 @@ public class ReviewService {
         this.productRepository = productRepository;
     }
 
-    public Review createReview(Integer productId, CreateReviewRequest request) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product with id " + productId + " not found"
-                ));
+    // public Review createReview(Integer productId, CreateReviewRequest request) {
+    //     Product product = productRepository.findById(productId)
+    //             .orElseThrow(() -> new ResponseStatusException(
+    //                     HttpStatus.NOT_FOUND,
+    //                     "Product with id " + productId + " not found"
+    //             ));
 
-        Review review = ReviewMapper.toEntity(request, product.getId());
-        return reviewRepository.create(review);
-    }
+    //     Review review = ReviewMapper.toEntity(request, product.getId());
+    //     return reviewRepository.create(review);
+    // }
 
-    public List<Review> getReviewsByProductId(Integer productId) {
-        productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product with id " + productId + " not found"
-                ));
+    // public List<Review> getReviewsByProductId(Integer productId) {
+    //     productRepository.findById(productId)
+    //             .orElseThrow(() -> new ResponseStatusException(
+    //                     HttpStatus.NOT_FOUND,
+    //                     "Product with id " + productId + " not found"
+    //             ));
 
-        return reviewRepository.findByProductId(productId);
-    }
+    //     return reviewRepository.findByProductId(productId);
+    // }
 }
