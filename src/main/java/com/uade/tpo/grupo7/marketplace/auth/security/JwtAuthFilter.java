@@ -77,21 +77,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String role = jwtService.extractRole(jwtToken);
 
         List<SimpleGrantedAuthority> authorities = List.of(
-            new SimpleGrantedAuthority("ROLE_" + role)
-        );
+                new SimpleGrantedAuthority("ROLE_" + role));
 
-        GrantedAuthoritiesMapper authoritiesMapper = 
-            new RoleHierarchyAuthoritiesMapper(roleHierarchy);
+        GrantedAuthoritiesMapper authoritiesMapper = new RoleHierarchyAuthoritiesMapper(roleHierarchy);
 
-        Collection<? extends GrantedAuthority> mappedAuthorities =
-            authoritiesMapper.mapAuthorities(authorities);
+        Collection<? extends GrantedAuthority> mappedAuthorities = authoritiesMapper.mapAuthorities(authorities);
 
-        UsernamePasswordAuthenticationToken authToken =
-            new UsernamePasswordAuthenticationToken(
-                user,
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                user.get(),
                 null,
-                mappedAuthorities
-            );
+                mappedAuthorities);
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
