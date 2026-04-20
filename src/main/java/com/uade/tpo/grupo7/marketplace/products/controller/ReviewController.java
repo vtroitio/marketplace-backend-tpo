@@ -19,17 +19,17 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @PostMapping("/{productId}/reviews")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Review createReview(
-            @PathVariable Integer productId,
-            @RequestBody @Valid CreateReviewRequest request
-    ) {
-        return reviewService.createReview(productId, request);
-    }
+    // @PostMapping("/{productId}/reviews")
+    // @ResponseStatus(HttpStatus.CREATED)
+    // public Review createReview(
+    //         @PathVariable Integer productId,
+    //         @RequestBody @Valid CreateReviewRequest request
+    // ) {
+    //     // return reviewService.createReview(productId, request);
+    // }
 
-    @GetMapping("/{productId}/reviews")
-    public List<Review> getReviewsByProductId(@PathVariable Integer productId) {
-        return reviewService.getReviewsByProductId(productId);
-    }
-}
+    // @GetMapping("/{productId}/reviews")
+    // public List<Review> getReviewsByProductId(@PathVariable Integer productId) {
+    //     return reviewService.getReviewsByProductId(productId);
+    // }
+} 
