@@ -56,14 +56,17 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para modificar esta review");
         }
 
-        if (request.title() != null) {
+        if (request.title() != null && !request.title().equalsIgnoreCase("string")) {
             review.setTitle(request.title());
         }
-        if (request.description() != null) {
+        if (request.description() != null && !request.description().equalsIgnoreCase("string")) {
             review.setDescription(request.description());
         }
-        if (request.rating() != null && request.rating() >= 1 && request.rating() <= 10) {
+        try{
+            if (request.rating() != null && request.rating() >= 1 && request.rating() <= 10) {
             review.setRating(request.rating());
+        }        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating debe ser un número entre 1 y 10");
         }
         
         return reviewRepository.save(review);
