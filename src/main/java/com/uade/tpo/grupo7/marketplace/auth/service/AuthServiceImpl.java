@@ -26,7 +26,10 @@ import com.uade.tpo.grupo7.marketplace.users.entity.User;
 import com.uade.tpo.grupo7.marketplace.users.repository.RoleRepository;
 import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     @Value("${application.security.jwt.refresh-token-expiration}")
@@ -38,21 +41,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserSessionRepository userSessionRepository;
     private final AuthenticationManager authenticationManager;
-
-    public AuthServiceImpl(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            RoleRepository roleRepository,
-            JwtService jwtService,
-            UserSessionRepository userSessionRepository,
-            AuthenticationManager authenticationManager) {
-        this.jwtService = jwtService;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
-        this.userSessionRepository = userSessionRepository;
-        this.authenticationManager = authenticationManager;
-    }
 
     @Override
     public AuthTokens register(RegisterRequest dto) {

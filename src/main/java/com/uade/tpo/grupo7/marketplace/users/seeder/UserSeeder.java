@@ -45,9 +45,18 @@ public class UserSeeder implements CommandLineRunner {
                 .role(superAdminRole)
                 .build();
 
-        User sellerUser = User.builder()
-                .username("seller_user")
-                .email("seller@user.com")
+        User sellerUser1 = User.builder()
+                .username("seller_1")
+                .email("seller1@user.com")
+                .passwordHash(passwordEncoder.encode("password"))
+                .name("Seller")
+                .surname("User")
+                .role(sellerRole)
+                .build();
+
+        User sellerUser2 = User.builder()
+                .username("seller_2")
+                .email("seller2@user.com")
                 .passwordHash(passwordEncoder.encode("password"))
                 .name("Seller")
                 .surname("User")
@@ -55,7 +64,8 @@ public class UserSeeder implements CommandLineRunner {
                 .build();
 
         userRepository.save(superAdminUser);
-        userRepository.save(sellerUser);
+        userRepository.save(sellerUser1);
+        userRepository.save(sellerUser2);
     }
 
 }

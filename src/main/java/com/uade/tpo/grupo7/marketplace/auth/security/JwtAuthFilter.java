@@ -1,9 +1,16 @@
 package com.uade.tpo.grupo7.marketplace.auth.security;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,8 +18,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.uade.tpo.grupo7.marketplace.auth.sessions.entity.UserSession;
-import com.uade.tpo.grupo7.marketplace.auth.sessions.repository.UserSessionRepository;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 import com.uade.tpo.grupo7.marketplace.users.repository.UserRepository;
 
@@ -29,8 +34,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final UserSessionRepository userSessionRepository;
     private final UserRepository userRepository;
+    private final RoleHierarchy roleHierarchy;
 
     @Override
     protected void doFilterInternal(
@@ -56,13 +61,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        UserSession userSession = userSessionRepository.findByToken(jwtToken).orElse(null);
-
-        if (userSession == null || userSession.isExpired() || userSession.isRevoked()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
         Optional<User> user = userRepository.findByEmail(userDetails.getUsername());
         if (user.isEmpty()) {
@@ -76,11 +74,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        String role = jwtService.extractRole(jwtToken);
+
+        List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + role));
+
+        GrantedAuthoritiesMapper authoritiesMapper = new RoleHierarchyAuthoritiesMapper(roleHierarchy);
+
+        Collection<? extends GrantedAuthority> mappedAuthorities = authoritiesMapper.mapAuthorities(authorities);
+
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                userDetails,
+                user.get(),
                 null,
-                userDetails.getAuthorities()
-        );
+                mappedAuthorities);
+
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
