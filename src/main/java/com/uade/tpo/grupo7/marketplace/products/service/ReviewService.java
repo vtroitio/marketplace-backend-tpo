@@ -35,8 +35,15 @@ public class ReviewService {
                 "Product with id " + productId + " not found"
         ));
 
+        if (reviewRepository.existsByProductAndBuyer(product, user)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ya has dejado una review para este producto."
+            );
+        }
         Review review = ReviewMapper.toEntity(request, product, user);
         return reviewRepository.save(review);
+
     }
 
     public List<Review> getReviewsByProductId(Long productId) {
@@ -63,20 +70,21 @@ public class ReviewService {
         if (request.description() != null && !request.description().equalsIgnoreCase("string")) {
             review.setDescription(request.description());
         }
-        try{
+        try {
             if (request.rating() != null && request.rating() >= 1 && request.rating() <= 10) {
-            review.setRating(request.rating());
-        }        } catch (NumberFormatException e) {
+                review.setRating(request.rating());
+            }
+        } catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating debe ser un número entre 1 y 10");
         }
-        
+
         return reviewRepository.save(review);
     }
 
     public Review deleteReview(Long reviewId, User user) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review no encontrada"));
-        
+
         if (review.getDeletedAt() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ya ha sido eliminada");
         }
@@ -87,5 +95,5 @@ public class ReviewService {
 
         review.setDeletedAt(LocalDateTime.now());
         return reviewRepository.save(review);
-        }
     }
+}
