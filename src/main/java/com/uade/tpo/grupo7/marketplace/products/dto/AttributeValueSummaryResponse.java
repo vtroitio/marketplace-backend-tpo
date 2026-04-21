@@ -7,6 +7,7 @@ public record AttributeValueSummaryResponse(
     Long id,
     String value,
     String code,
+    String hexColor,
     Long attributeId,
     String attributeName,
     String attributeCode

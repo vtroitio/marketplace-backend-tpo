@@ -86,4 +86,9 @@ public class Product {
             this.createdAt = LocalDateTime.now();
         }
     }
+
+    public void softDelete() {
+        if (this.deletedAt != null) return;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

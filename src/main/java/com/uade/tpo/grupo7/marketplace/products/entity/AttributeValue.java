@@ -42,6 +42,9 @@ public class AttributeValue {
     @Column(nullable = false, unique = true)
     private String code;
 
+    @Column
+    private String hexColor;
+
     @OneToMany(mappedBy = "attributeValue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VariantAttributeValue> variantAttributeValues;
 }

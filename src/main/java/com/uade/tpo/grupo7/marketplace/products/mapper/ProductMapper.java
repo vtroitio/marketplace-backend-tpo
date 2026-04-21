@@ -74,6 +74,7 @@ public class ProductMapper {
                             attributeValue.getId(),
                             attributeValue.getValue(),
                             attributeValue.getCode(),
+                            attributeValue.getHexColor(),
                             attribute.getId(),
                             attribute.getName(),
                             attribute.getCode()

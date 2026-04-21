@@ -6,5 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record AttributeValueResponse(
     Long id,
     String value,
-    String code
+    String code,
+    String hexColor
 ) {}

@@ -29,7 +29,8 @@ public class AttributeMapper {
                 .map(value -> new AttributeValueResponse(
                         value.getId(),
                         value.getValue(),
-                        value.getCode()
+                        value.getCode(),
+                        value.getHexColor()
                 ))
                 .toList();
     }

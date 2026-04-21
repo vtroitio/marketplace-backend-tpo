@@ -37,12 +37,12 @@ public class AttributeSeeder implements CommandLineRunner {
                         value(talle, "XL", "TALLE_XL")
                 )),
                 attributeWithValues(color, List.of(
-                        value(color, "Negro", "COLOR_NEGRO"),
-                        value(color, "Blanco", "COLOR_BLANCO"),
-                        value(color, "Azul", "COLOR_AZUL"),
-                        value(color, "Naranja", "COLOR_NARANJA"),
-                        value(color, "Gris", "COLOR_GRIS"),
-                        value(color, "Rosa", "COLOR_ROSA")
+                        colorValue(color, "Negro", "COLOR_NEGRO", "#000000"),
+                        colorValue(color, "Blanco", "COLOR_BLANCO", "#FFFFFF"),
+                        colorValue(color, "Azul", "COLOR_AZUL", "#2563EB"),
+                        colorValue(color, "Naranja", "COLOR_NARANJA", "#F97316"),
+                        colorValue(color, "Gris", "COLOR_GRIS", "#6B7280"),
+                        colorValue(color, "Rosa", "COLOR_ROSA", "#EC4899")
                 ))
         ));
     }
@@ -57,6 +57,15 @@ public class AttributeSeeder implements CommandLineRunner {
                 .attribute(attribute)
                 .value(value)
                 .code(code)
+                .build();
+    }
+
+    private AttributeValue colorValue(Attribute attribute, String value, String code, String hexColor) {
+        return AttributeValue.builder()
+                .attribute(attribute)
+                .value(value)
+                .code(code)
+                .hexColor(hexColor)
                 .build();
     }
 }
