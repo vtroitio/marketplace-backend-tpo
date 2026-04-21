@@ -1,20 +1,20 @@
 package com.uade.tpo.grupo7.marketplace.products.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewLikeRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewLikeService;
-
-import jakarta.validation.Valid;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 @RestController
 @RequestMapping("/reviews")
@@ -28,12 +28,23 @@ public class ReviewLikeController {
 
     @PostMapping("/{reviewId}/likes")
     @ResponseStatus(HttpStatus.CREATED)
-    public ReviewLike createReviewLike(
+    public ResponseEntity<?> createReviewLike(
             @PathVariable Long reviewId,
-            @RequestBody @Valid CreateReviewLikeRequest request
+            @AuthenticationPrincipal User user
     ) {
-        return reviewLikeService.createReviewLike(reviewId, request);
-    }
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+
+        ReviewLike result = reviewLikeService.createReviewLike(reviewId, user);
+
+        if (result == null) {
+            return ResponseEntity.ok("Like eliminado");
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        }
+  }
+    
 
     @GetMapping("/{reviewId}/likes/count")
     public long countLikesByReviewId(@PathVariable Long reviewId) {
@@ -44,8 +55,8 @@ public class ReviewLikeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReviewLike(
             @PathVariable Long reviewId,
-            @PathVariable("userId") Integer buyerId
+            @PathVariable User buyer
     ) {
-        reviewLikeService.deleteReviewLike(reviewId, buyerId);
+        reviewLikeService.deleteReviewLike(reviewId, buyer);
     }
 }

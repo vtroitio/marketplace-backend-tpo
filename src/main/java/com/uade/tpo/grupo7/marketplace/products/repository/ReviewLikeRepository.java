@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 @Repository
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
 
-    Optional<ReviewLike> findByReview_IdAndBuyerId(Long reviewId, Integer buyerId);
+    Optional<ReviewLike> findByReviewIdAndBuyer(Long reviewId, User buyer);
 
-    long countByReview_Id(Long reviewId);
+    long countByReviewId(Long reviewId);
 }
