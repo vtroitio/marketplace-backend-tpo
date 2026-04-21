@@ -3,7 +3,6 @@ package com.uade.tpo.grupo7.marketplace.products.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,18 +44,8 @@ public class ReviewLikeController {
         }
   }
     
-
     @GetMapping("/{reviewId}/likes/count")
     public long countLikesByReviewId(@PathVariable Long reviewId) {
         return reviewLikeService.countLikesByReviewId(reviewId);
-    }
-
-    @DeleteMapping("/{reviewId}/likes/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteReviewLike(
-            @PathVariable Long reviewId,
-            @PathVariable User buyer
-    ) {
-        reviewLikeService.deleteReviewLike(reviewId, buyer);
     }
 }

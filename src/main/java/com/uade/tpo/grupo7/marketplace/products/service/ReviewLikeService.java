@@ -50,20 +50,4 @@ public class ReviewLikeService {
 
         return reviewLikeRepository.countByReviewId(reviewId);
     }
-
-    public void deleteReviewLike(Long reviewId, User user) {
-        reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Review with id " + reviewId + " not found"
-                ));
-
-        ReviewLike reviewLike = reviewLikeRepository.findByReviewIdAndBuyer(reviewId, user)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Like not found for review " + reviewId + " and user " + user.getId()
-                ));
-
-        reviewLikeRepository.delete(reviewLike);
-    }
 }
