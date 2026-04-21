@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.uade.tpo.grupo7.marketplace.products.dto.ReviewLikeResponse;
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewLikeService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
@@ -45,7 +46,10 @@ public class ReviewLikeController {
   }
     
     @GetMapping("/{reviewId}/likes/count")
-    public long countLikesByReviewId(@PathVariable Long reviewId) {
-        return reviewLikeService.countLikesByReviewId(reviewId);
+    public ReviewLikeResponse getLikesByReviewId(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal User user
+    ) {
+        return reviewLikeService.getLikesByReviewId(reviewId, user);
     }
 }
