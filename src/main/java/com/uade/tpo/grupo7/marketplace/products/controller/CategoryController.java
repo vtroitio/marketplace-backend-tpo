@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -52,6 +53,7 @@ public class CategoryController {
         return categoryService.getCategoryResponseById(categoryId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
@@ -62,6 +64,7 @@ public class CategoryController {
         return categoryService.createCategoryResponse(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("{categoryId}")
     @Operation(
         summary = "Actualizar una categoria",
@@ -74,6 +77,7 @@ public class CategoryController {
         return categoryService.updateCategoryResponse(categoryId, dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{categoryId}")
     @Operation(
         summary = "Eliminar una categoria",

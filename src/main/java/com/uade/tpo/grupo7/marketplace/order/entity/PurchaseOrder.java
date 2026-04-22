@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo7.marketplace.order.entity;
 
+import com.uade.tpo.grupo7.marketplace.common.enums.OrderStatus;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 import jakarta.persistence.CascadeType;

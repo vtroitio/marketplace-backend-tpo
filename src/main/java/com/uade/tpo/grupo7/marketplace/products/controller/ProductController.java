@@ -6,7 +6,9 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,6 +79,7 @@ public class ProductController {
         return this.productService.getProductResponseById(productId);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @PostMapping
     @Operation(
         summary = "Crear un nuevo producto",
@@ -86,7 +89,7 @@ public class ProductController {
         @ApiResponse(responseCode = "201", description = "Producto creado"),
         @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos")
     })
-    public ProductResponse createProduct(
+    public ResponseEntity<ProductResponse> createProduct(
             @Valid
             @RequestBody
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -124,9 +127,13 @@ public class ProductController {
             )
             CreateProductRequest dto
     ) {
-        return this.productService.createProductResponse(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.createProductResponse(dto));
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
+    """)
     @PatchMapping("{productId}")
     @Operation(
         summary = "Actualizar un producto",
@@ -175,6 +182,10 @@ public class ProductController {
         return this.productService.updateProductResponse(productId, dto);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}")
     @Operation(
         summary = "Eliminar un producto",
@@ -185,6 +196,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
+    """)
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
     public List<ProductImage> uploadProductImage(
         @PathVariable Long productId,
@@ -193,6 +208,10 @@ public class ProductController {
         return this.productService.uploadProductImages(productId, files);
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
+    """)
     @DeleteMapping("{productId}/images/{imgId}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteProductImage(
