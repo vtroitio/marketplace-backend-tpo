@@ -3,6 +3,7 @@ package com.uade.tpo.grupo7.marketplace.products.entity;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,8 +41,9 @@ public class ReviewLike {
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
-    @Column(name = "buyer_id", nullable = false)
-    private Integer buyerId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "buyer_id", nullable = false)
+    private User buyer;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

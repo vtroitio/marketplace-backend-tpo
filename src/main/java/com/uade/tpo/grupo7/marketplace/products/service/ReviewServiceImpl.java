@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -36,6 +35,12 @@ public class ReviewServiceImpl implements ReviewService {
                 "Product with id " + productId + " not found"
         ));
 
+        if (reviewRepository.existsByProductAndBuyerAndDeletedAtIsNull(product, user)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ya has dejado una review para este producto."
+            );
+        }
         Review review = ReviewMapper.toEntity(request, product, user);
         return ReviewMapper.toResponse(reviewRepository.save(review));
     }
