@@ -28,6 +28,9 @@ import com.uade.tpo.grupo7.marketplace.products.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -87,7 +90,44 @@ public class ProductController {
         @ApiResponse(responseCode = "201", description = "Producto creado"),
         @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos")
     })
-    public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest dto) {
+    public ProductResponse createProduct(
+            @Valid
+            @RequestBody
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Producto con variantes, categorias y valores de atributos",
+                required = true,
+                content = @Content(
+                    schema = @Schema(implementation = CreateProductRequest.class),
+                    examples = @ExampleObject(
+                        name = "Producto con talle y color",
+                        value = """
+                        {
+                          "name": "Remera azul lila",
+                          "price": 19999,
+                          "description": "Remera de algodon con variante azul lila",
+                          "categoryIds": [3],
+                          "variants": [
+                            {
+                              "sku": "REM-AZL-S",
+                              "price": 19999,
+                              "stock": 10,
+                              "attributeValues": [
+                                {
+                                  "attributeValueId": 1
+                                },
+                                {
+                                  "attributeValueId": 10
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        """
+                    )
+                )
+            )
+            CreateProductRequest dto
+    ) {
         Product product = this.productService.createProduct(dto);
         return ProductMapper.toResponse(product);
     }
