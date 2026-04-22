@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.products.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +15,12 @@ import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewLikeRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewLikeService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping("products/{productId}/reviews/{reviewId}/likes")
+@Tag(name = "Review Likes", description = "Endpoints para gestionar los 'likes' de las reseñas de los productos")
 public class ReviewLikeController {
 
     private final ReviewLikeService reviewLikeService;
@@ -26,7 +29,8 @@ public class ReviewLikeController {
         this.reviewLikeService = reviewLikeService;
     }
 
-    @PostMapping("/{reviewId}/likes")
+    @PreAuthorize("hasRole('BUYER')")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewLike createReviewLike(
             @PathVariable Long reviewId,
@@ -35,12 +39,16 @@ public class ReviewLikeController {
         return reviewLikeService.createReviewLike(reviewId, request);
     }
 
-    @GetMapping("/{reviewId}/likes/count")
+    @GetMapping("count")
     public long countLikesByReviewId(@PathVariable Long reviewId) {
         return reviewLikeService.countLikesByReviewId(reviewId);
     }
 
-    @DeleteMapping("/{reviewId}/likes/{userId}")
+    @PreAuthorize("""
+        hasRole('BUYER') and 
+        @ownership.isProductReviewOwner(#reviewId, authentication.principal)
+    """)
+    @DeleteMapping("{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReviewLike(
             @PathVariable Long reviewId,

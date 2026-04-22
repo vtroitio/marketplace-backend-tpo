@@ -22,10 +22,12 @@ import com.uade.tpo.grupo7.marketplace.products.dto.UpdateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/products/{productId}/reviews")
+@Tag(name = "Reviews", description = "Endpoints de reviews de productos")
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -35,7 +37,7 @@ public class ReviewController {
     }
 
     @PreAuthorize("hasRole('BUYER')")
-    @PostMapping("/{productId}/reviews")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewResponse createReview(
             @PathVariable Long productId,
@@ -45,13 +47,16 @@ public class ReviewController {
         return reviewService.createReview(productId, request, user);
     }
     
-    @GetMapping("/{productId}/reviews")
+    @GetMapping
     public List<ReviewResponse> findAllByDeletedAtIsNullList(@PathVariable Long productId) {
         return reviewService.getReviewsByProductId(productId);
     }
 
-    @PreAuthorize("hasRole('BUYER') and @ownership.isProductReviewOwner(#reviewId, authentication.principal)")
-    @PatchMapping("/reviews/{reviewId}")
+    @PreAuthorize("""
+        hasRole('BUYER') and 
+        @ownership.isProductReviewOwner(#reviewId, authentication.principal)
+    """)
+    @PatchMapping("{reviewId}")
     public ReviewResponse updateReview(
             @PathVariable Long reviewId,
             @RequestBody @Valid UpdateReviewRequest request,
@@ -60,8 +65,11 @@ public class ReviewController {
         return reviewService.updateReview(reviewId, request, user);
     }
 
-    @PreAuthorize("hasRole('BUYER') and @ownership.isProductReviewOwner(#reviewId, authentication.principal)")
-    @DeleteMapping("/reviews/{reviewId}")
+    @PreAuthorize("""
+        hasRole('BUYER') and 
+        @ownership.isProductReviewOwner(#reviewId, authentication.principal)
+    """)
+    @DeleteMapping("{reviewId}")
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long reviewId,
             @AuthenticationPrincipal User user

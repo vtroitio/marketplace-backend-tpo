@@ -95,7 +95,7 @@ public class ProductController {
         @ApiResponse(responseCode = "201", description = "Producto creado"),
         @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos")
     })
-    public ProductResponse createProduct(
+    public ResponseEntity<ProductResponse> createProduct(
             @Valid
             @RequestBody
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -133,11 +133,11 @@ public class ProductController {
             )
             CreateProductRequest dto
     ) {
-        return this.productService.createProductResponse(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.createProductResponse(dto));
     }
 
     @PreAuthorize("""
-        hasRole('ADMIN') and 
+        hasRole('ADMIN') or 
         (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
     """)
     @PatchMapping("{productId}")
@@ -189,7 +189,7 @@ public class ProductController {
     }
 
     @PreAuthorize("""
-        hasRole('ADMIN') and 
+        hasRole('ADMIN') or 
         (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
     """)
     @DeleteMapping("{productId}")
@@ -202,6 +202,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("""
+        hasRole('ADMIN') or 
+        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
+    """)
     @PostMapping(value = "{productId}/images", consumes = "multipart/form-data")
     public List<ProductImage> uploadProductImage(
         @PathVariable Long productId,
@@ -211,7 +215,7 @@ public class ProductController {
     }
 
     @PreAuthorize("""
-        hasRole('ADMIN') and 
+        hasRole('ADMIN') or 
         (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
     """)
     @DeleteMapping("{productId}/images/{imgId}")
@@ -237,7 +241,7 @@ public class ProductController {
 
 
     @PreAuthorize("""
-        hasRole('ADMIN') and 
+        hasRole('ADMIN') or 
         (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
     """)
     public void reorderProductImages(Long productId, List<Long> orderedIds) {
