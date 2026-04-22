@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.tpo.grupo7.marketplace.products.dto.CategoryResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateCategoryRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateCategoryRequest;
-import com.uade.tpo.grupo7.marketplace.products.entity.Category;
-import com.uade.tpo.grupo7.marketplace.products.mapper.CategoryMapper;
 import com.uade.tpo.grupo7.marketplace.products.service.CategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,10 +40,7 @@ public class CategoryController {
         description = "Obtiene la lista completa de categorias disponibles"
     )
     public List<CategoryResponse> getCategories() {
-        return categoryService.getCategories()
-                .stream()
-                .map(CategoryMapper::toResponse)
-                .toList();
+        return categoryService.getCategoryResponses();
     }
 
     @GetMapping("{categoryId}")
@@ -54,8 +49,7 @@ public class CategoryController {
         description = "Obtiene una categoria especifica por su identificador"
     )
     public CategoryResponse getCategoryById(@PathVariable Long categoryId) {
-        Category category = categoryService.getCategoryById(categoryId);
-        return CategoryMapper.toResponse(category);
+        return categoryService.getCategoryResponseById(categoryId);
     }
 
     @PostMapping
@@ -65,8 +59,7 @@ public class CategoryController {
         description = "Crea una nueva categoria en el marketplace"
     )
     public CategoryResponse createCategory(@Valid @RequestBody CreateCategoryRequest dto) {
-        Category category = categoryService.createCategory(dto);
-        return CategoryMapper.toResponse(category);
+        return categoryService.createCategoryResponse(dto);
     }
 
     @PatchMapping("{categoryId}")
@@ -78,8 +71,7 @@ public class CategoryController {
             @PathVariable Long categoryId,
             @Valid @RequestBody UpdateCategoryRequest dto
     ) {
-        Category category = categoryService.updateCategory(categoryId, dto);
-        return CategoryMapper.toResponse(category);
+        return categoryService.updateCategoryResponse(categoryId, dto);
     }
 
     @DeleteMapping("{categoryId}")

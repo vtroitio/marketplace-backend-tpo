@@ -19,11 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductVariantRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductVariantRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.VariantAttributeValueRequest;
@@ -39,8 +41,6 @@ import com.uade.tpo.grupo7.marketplace.products.repository.CategoryRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductVariantRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService {
@@ -70,10 +70,33 @@ public class ProductService {
         this.attributeValueRepository = attributeValueRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getProductResponses(Pageable pageable) {
+        return this.productRepository.findAll(pageable)
+                .map(ProductMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponse getProductResponseById(Long productId) {
+        return ProductMapper.toResponse(this.getProductById(productId));
+    }
+
+    @Transactional
+    public ProductResponse createProductResponse(CreateProductRequest dto) {
+        return ProductMapper.toResponse(this.createProduct(dto));
+    }
+
+    @Transactional
+    public ProductResponse updateProductResponse(Long productId, UpdateProductRequest dto) {
+        return ProductMapper.toResponse(this.updateProduct(productId, dto));
+    }
+
+    @Transactional(readOnly = true)
     public Page<Product> getProducts(Pageable pageable) {
         return this.productRepository.findAll(pageable);
     }
 
+    @Transactional(readOnly = true)
     public Product getProductById(Long productId) throws ResponseStatusException {
         return this.productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -82,6 +105,7 @@ public class ProductService {
                 ));
     }
 
+    @Transactional
     public Product createProduct(CreateProductRequest dto) {
         Product product = ProductMapper.toEntitiy(dto);
         product.setCategories(this.resolveCategories(dto.categoryIds()));
@@ -90,6 +114,7 @@ public class ProductService {
         return this.productRepository.save(product);
     }
 
+    @Transactional
     public Product updateProduct(Long productId, UpdateProductRequest dto) throws ResponseStatusException {
         Product product = this.getProductById(productId);
 
@@ -116,6 +141,7 @@ public class ProductService {
         return this.productRepository.save(product);
     }
 
+    @Transactional
     public void deleteProduct(Long productId) throws ResponseStatusException {
         this.getProductById(productId);
         this.productRepository.deleteById(productId);
@@ -318,6 +344,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public List<ProductImage> uploadProductImages(Long productId, List<MultipartFile> files) {
         final int currentImages = this.productImageRepository.countByProductId(productId);
 
