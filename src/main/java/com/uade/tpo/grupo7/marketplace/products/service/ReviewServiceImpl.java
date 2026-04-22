@@ -53,7 +53,7 @@ public class ReviewServiceImpl implements ReviewService {
                 "Product with id " + productId + " not found"
         ));
 
-        return reviewRepository.findAllByDeletedAtIsNull(productId).stream()
+        return reviewRepository.findAllByProduct_IdAndDeletedAtIsNull(productId).stream()
                 .map(ReviewMapper::toResponse)
                 .collect(java.util.stream.Collectors.toList());
     }

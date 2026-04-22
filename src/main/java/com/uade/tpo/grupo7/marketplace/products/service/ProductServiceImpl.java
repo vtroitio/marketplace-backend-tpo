@@ -401,6 +401,8 @@ public class ProductServiceImpl implements ProductService {
         for (int i = 0; i < images.size(); i++) {
             images.get(i).setPosition(i);
         }
+
+        this.productImageRepository.saveAll(images);
     }
 
     private String saveFile(MultipartFile file, Long productId) throws IOException {

@@ -1,8 +1,6 @@
 package com.uade.tpo.grupo7.marketplace.products.controller;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -21,13 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
-import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,11 +42,9 @@ import jakarta.validation.Valid;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductImageRepository productImageRepository;
 
-    public ProductController(ProductService productService, ProductImageRepository productImageRepository) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.productImageRepository = productImageRepository;
     }
 
     @GetMapping
@@ -224,55 +218,7 @@ public class ProductController {
         @PathVariable Long productId,
         @PathVariable Long imgId
     ) {
-        ProductImage image = this.productImageRepository
-            .findById(imgId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND
-            ));
-
-        if (image.getProduct().getId() != productId) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        this.productImageRepository.delete(image);
         this.productService.deleteProductImage(productId, imgId);
         return ResponseEntity.noContent().build();
-    }
-
-
-    @PreAuthorize("""
-        hasRole('ADMIN') or 
-        (hasRole('SELLER') and @owinership.isProductOwner(#productId, authentication.principal))
-    """)
-    public void reorderProductImages(Long productId, List<Long> orderedIds) {
-        List<ProductImage> images = this.productImageRepository
-            .findAllByProductId(productId);
-
-        if (images.size() != orderedIds.size()) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Mismatch between existing images and provided order"
-            );
-        }
-
-        Map<Long, ProductImage> imageMap = images.stream()
-            .collect(Collectors.toMap(ProductImage::getId, img -> img));
-
-        for (int i = 0; i < orderedIds.size(); i++) {
-            Long id = orderedIds.get(i);
-
-            ProductImage image = imageMap.get(id);
-
-            if (image == null) {
-                throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid image id: " + id
-                );
-            }
-
-            image.setPosition(i);
-        }
-
-        this.productImageRepository.saveAll(images);
     }
 }

@@ -1,8 +1,5 @@
 package com.uade.tpo.grupo7.marketplace.cart.controller;
 
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.cart.dto.AddToCartRequest;
 import com.uade.tpo.grupo7.marketplace.cart.dto.CartResponse;
@@ -28,7 +24,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("cart")
-@PreAuthorize("hasRole('BUYER')")
 @Tag(name = "Cart", description = "Endpoints del carrito del usuario autenticado")
 public class CartController {
 
@@ -40,48 +35,50 @@ public class CartController {
 
     @GetMapping
     @Operation(summary = "Obtener el carrito del usuario autenticado")
-    public CartResponse getCart(@AuthenticationPrincipal Optional<User> principal) {
+    public CartResponse getCart(@AuthenticationPrincipal User principal) {
         return cartService.getCart(currentUserId(principal));
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @PostMapping("items")
     @Operation(summary = "Agregar un item al carrito")
     public CartResponse addItem(
-            @AuthenticationPrincipal Optional<User> principal,
+            @AuthenticationPrincipal User principal,
             @Valid @RequestBody AddToCartRequest request
     ) {
         return cartService.addItemToCart(currentUserId(principal), request);
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @PatchMapping("items/{itemId}")
     @Operation(summary = "Actualizar la cantidad de un item del carrito")
     public CartResponse updateItem(
-            @AuthenticationPrincipal Optional<User> principal,
+            @AuthenticationPrincipal User principal,
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateCartItemRequest request
     ) {
         return cartService.updateItemQuantity(currentUserId(principal), itemId, request.quantity());
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @DeleteMapping("items/{itemId}")
     @Operation(summary = "Eliminar un item del carrito")
     public CartResponse removeItem(
-            @AuthenticationPrincipal Optional<User> principal,
+            @AuthenticationPrincipal User principal,
             @PathVariable Long itemId
     ) {
         return cartService.removeItem(currentUserId(principal), itemId);
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @DeleteMapping
     @Operation(summary = "Vaciar el carrito")
-    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal Optional<User> principal) {
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User principal) {
         cartService.clearCart(currentUserId(principal));
         return ResponseEntity.noContent().build();
     }
 
-    private Long currentUserId(Optional<User> principal) {
-        return principal
-                .map(User::getId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required"));
+    private Long currentUserId(User principal) {
+        return principal.getId();
     }
 }
