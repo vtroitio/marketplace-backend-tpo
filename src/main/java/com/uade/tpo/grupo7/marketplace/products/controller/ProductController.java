@@ -108,7 +108,7 @@ public class ProductController {
                           "categoryIds": [3],
                           "variants": [
                             {
-                              "sku": "REM-AZL-S",
+                              "sku": "REM-AZL-TEST-S",
                               "price": 19999,
                               "stock": 10,
                               "attributeValues": [
