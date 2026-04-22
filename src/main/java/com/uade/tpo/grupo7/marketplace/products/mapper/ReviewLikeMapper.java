@@ -1,18 +1,18 @@
 package com.uade.tpo.grupo7.marketplace.products.mapper;
 
-import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewLikeRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Review;
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 public class ReviewLikeMapper {
 
     private ReviewLikeMapper() {
     }
 
-    public static ReviewLike toEntity(CreateReviewLikeRequest request, Review review) {
+    public static ReviewLike toEntity(Review review, User user) {
         return ReviewLike.builder()
                 .review(review)
-                .buyerId(request.getBuyerId())
+                .buyer(user)
                 .build();
     }
 }
