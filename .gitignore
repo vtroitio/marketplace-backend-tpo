@@ -32,3 +32,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local profile (contains DB credentials) ###
+src/main/resources/application-local.properties
+
+### Generated report (HTML + PDF) ###
+docs/cart-order-report.html
+docs/cart-order-report.pdf
