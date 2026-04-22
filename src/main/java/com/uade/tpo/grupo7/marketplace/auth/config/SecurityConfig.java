@@ -1,14 +1,8 @@
 package com.uade.tpo.grupo7.marketplace.auth.config;
 
 import com.uade.tpo.grupo7.marketplace.auth.security.JwtAuthFilter;
-
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,50 +18,31 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(req -> 
-                    req
-                        .requestMatchers(
-                            "/auth/**",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/swagger-ui.html",
-                            "/uploads/**"
-                        ).permitAll()
-                        .requestMatchers(
-                            HttpMethod.GET, 
-                            "/products/**"
-                        ).permitAll()
-                        .anyRequest()
-                        .authenticated()
+            .authorizeHttpRequests(req ->
+                req
+                    .requestMatchers(
+                        "/auth/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/uploads/**",
+                        "/products/**",
+                        "/categories/**",
+                        "/attributes/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .exceptionHandling(e -> e
-                .authenticationEntryPoint((req, res, ex) -> {
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                })
-                .accessDeniedHandler((req, res, ex) -> {
-                      res.sendError(HttpServletResponse.SC_FORBIDDEN);
-                })
-            )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    @Bean
-    RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.fromHierarchy("""
-            ROLE_SUPER_ADMIN > ROLE_ADMIN
-            ROLE_ADMIN > ROLE_SELLER
-            ROLE_SELLER > ROLE_BUYER   
-        """);
-    }
-
 }

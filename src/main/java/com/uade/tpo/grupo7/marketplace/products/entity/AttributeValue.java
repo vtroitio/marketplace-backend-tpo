@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo7.marketplace.products.entity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,30 +25,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductVariant {
+public class AttributeValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(nullable = false, unique = true)
-    private String sku;
-
-    @Column(nullable = false)
-    private Double price;
-
-    @Column(nullable = false)
-    private Integer stock;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime deletedAt;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "attribute_id", nullable = false)
     @JsonIgnore
-    private Product product;
+    private Attribute attribute;
 
-    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VariantAttributeValue> attributeValues;
+    @Column(nullable = false)
+    private String value;
+
+    @Column(nullable = false, unique = true)
+    private String code;
+
+    @Column
+    private String hexColor;
+
+    @OneToMany(mappedBy = "attributeValue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VariantAttributeValue> variantAttributeValues;
 }

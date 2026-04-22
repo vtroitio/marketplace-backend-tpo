@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateCategoryRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.CategoryResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateCategoryRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Category;
 import com.uade.tpo.grupo7.marketplace.products.mapper.CategoryMapper;
@@ -27,10 +29,34 @@ public class CategoryService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getCategoryResponses() {
+        return getCategories().stream()
+                .map(CategoryMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CategoryResponse getCategoryResponseById(Long categoryId) {
+        return CategoryMapper.toResponse(getCategoryById(categoryId));
+    }
+
+    @Transactional
+    public CategoryResponse createCategoryResponse(CreateCategoryRequest dto) {
+        return CategoryMapper.toResponse(createCategory(dto));
+    }
+
+    @Transactional
+    public CategoryResponse updateCategoryResponse(Long categoryId, UpdateCategoryRequest dto) {
+        return CategoryMapper.toResponse(updateCategory(categoryId, dto));
+    }
+
+    @Transactional(readOnly = true)
     public List<Category> getCategories() {
         return categoryRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Category getCategoryById(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -39,6 +65,7 @@ public class CategoryService {
                 ));
     }
 
+    @Transactional
     public Category createCategory(CreateCategoryRequest dto) {
         if (categoryRepository.existsByCode(dto.code())) {
             throw new ResponseStatusException(
@@ -53,6 +80,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     public Category updateCategory(Long categoryId, UpdateCategoryRequest dto) {
         Category category = getCategoryById(categoryId);
 
