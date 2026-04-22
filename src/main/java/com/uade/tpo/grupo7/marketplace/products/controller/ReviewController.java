@@ -4,22 +4,21 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.ReviewResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateReviewRequest;
-import com.uade.tpo.grupo7.marketplace.products.entity.Review;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
@@ -35,56 +34,39 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @PostMapping("/{productId}/reviews")
     @ResponseStatus(HttpStatus.CREATED)
-    public Review createReview(
+    public ReviewResponse createReview(
             @PathVariable Long productId,
             @RequestBody @Valid CreateReviewRequest request,
             @AuthenticationPrincipal User user
     ) {
-
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-
         return reviewService.createReview(productId, request, user);
     }
-
+    
     @GetMapping("/{productId}/reviews")
-    public List<Review> findAllByDeletedAtIsNullList(@PathVariable Long productId) {
+    public List<ReviewResponse> findAllByDeletedAtIsNullList(@PathVariable Long productId) {
         return reviewService.getReviewsByProductId(productId);
     }
 
-    @PutMapping("/reviews/{reviewId}")
-    public Review updateReview(
+    @PreAuthorize("hasRole('BUYER') and @ownership.isProductReviewOwner(#reviewId, authentication.principal)")
+    @PatchMapping("/reviews/{reviewId}")
+    public ReviewResponse updateReview(
             @PathVariable Long reviewId,
             @RequestBody @Valid UpdateReviewRequest request,
             @AuthenticationPrincipal User user
     ) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-
         return reviewService.updateReview(reviewId, request, user);
     }
 
+    @PreAuthorize("hasRole('BUYER') and @ownership.isProductReviewOwner(#reviewId, authentication.principal)")
     @DeleteMapping("/reviews/{reviewId}")
-    public ResponseEntity<ReviewResponse> deleteReview(
+    public ResponseEntity<Void> deleteReview(
             @PathVariable Long reviewId,
             @AuthenticationPrincipal User user
     ) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        Review deletedReview = reviewService.deleteReview(reviewId, user);
-        ReviewResponse response = new ReviewResponse(
-                deletedReview.getId(),
-                deletedReview.getDescription(),
-                deletedReview.getRating(),
-                deletedReview.getDeletedAt()
-        );
-
-        return ResponseEntity.ok(response);
+        reviewService.deleteReview(reviewId, user);
+        return ResponseEntity.noContent().build();
     }
 }

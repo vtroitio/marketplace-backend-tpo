@@ -1,69 +1,13 @@
 package com.uade.tpo.grupo7.marketplace.products.service;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewLikeRequest;
-import com.uade.tpo.grupo7.marketplace.products.entity.Review;
 import com.uade.tpo.grupo7.marketplace.products.entity.ReviewLike;
-import com.uade.tpo.grupo7.marketplace.products.mapper.ReviewLikeMapper;
-import com.uade.tpo.grupo7.marketplace.products.repository.ReviewLikeRepository;
-import com.uade.tpo.grupo7.marketplace.products.repository.ReviewRepository;
 
-@Service
-public class ReviewLikeService {
+public interface ReviewLikeService {
 
-    private final ReviewLikeRepository reviewLikeRepository;
-    private final ReviewRepository reviewRepository;
+    ReviewLike createReviewLike(Long reviewId, CreateReviewLikeRequest request);
 
-    public ReviewLikeService(ReviewLikeRepository reviewLikeRepository, ReviewRepository reviewRepository) {
-        this.reviewLikeRepository = reviewLikeRepository;
-        this.reviewRepository = reviewRepository;
-    }
+    long countLikesByReviewId(Long reviewId);
 
-    public ReviewLike createReviewLike(Long reviewId, CreateReviewLikeRequest request) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Review with id " + reviewId + " not found"
-                ));
-
-        reviewLikeRepository.findByReview_IdAndBuyerId(reviewId, request.getBuyerId())
-                .ifPresent(existingLike -> {
-                    throw new ResponseStatusException(
-                            HttpStatus.BAD_REQUEST,
-                            "User already liked this review"
-                    );
-                });
-
-        ReviewLike reviewLike = ReviewLikeMapper.toEntity(request, review);
-        return reviewLikeRepository.save(reviewLike);
-    }
-
-    public long countLikesByReviewId(Long reviewId) {
-        reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Review with id " + reviewId + " not found"
-                ));
-
-        return reviewLikeRepository.countByReview_Id(reviewId);
-    }
-
-    public void deleteReviewLike(Long reviewId, Integer buyerId) {
-        reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Review with id " + reviewId + " not found"
-                ));
-
-        ReviewLike reviewLike = reviewLikeRepository.findByReview_IdAndBuyerId(reviewId, buyerId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Like not found for review " + reviewId + " and user " + buyerId
-                ));
-
-        reviewLikeRepository.delete(reviewLike);
-    }
+    void deleteReviewLike(Long reviewId, Integer buyerId);
 }
