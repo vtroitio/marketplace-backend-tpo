@@ -40,8 +40,19 @@ public class AttributeSeeder implements CommandLineRunner {
                         colorValue(color, "Negro", "COLOR_NEGRO", "#000000"),
                         colorValue(color, "Blanco", "COLOR_BLANCO", "#FFFFFF"),
                         colorValue(color, "Azul", "COLOR_AZUL", "#2563EB"),
+                        colorValue(color, "Azul claro", "COLOR_AZUL_CLARO", "#60A5FA"),
+                        colorValue(color, "Azul marino", "COLOR_AZUL_MARINO", "#1E3A8A"),
+                        colorValue(color, "Azul lila", "COLOR_AZUL_LILA", "#A78BFA"),
+                        colorValue(color, "Celeste", "COLOR_CELESTE", "#38BDF8"),
+                        colorValue(color, "Lavanda", "COLOR_LAVANDA", "#C4B5FD"),
                         colorValue(color, "Naranja", "COLOR_NARANJA", "#F97316"),
+                        colorValue(color, "Rojo", "COLOR_ROJO", "#DC2626"),
+                        colorValue(color, "Bordo", "COLOR_BORDO", "#7F1D1D"),
+                        colorValue(color, "Verde", "COLOR_VERDE", "#16A34A"),
+                        colorValue(color, "Verde oliva", "COLOR_VERDE_OLIVA", "#556B2F"),
+                        colorValue(color, "Amarillo", "COLOR_AMARILLO", "#FACC15"),
                         colorValue(color, "Gris", "COLOR_GRIS", "#6B7280"),
+                        colorValue(color, "Beige", "COLOR_BEIGE", "#D6C6A8"),
                         colorValue(color, "Rosa", "COLOR_ROSA", "#EC4899")
                 ))
         ));
