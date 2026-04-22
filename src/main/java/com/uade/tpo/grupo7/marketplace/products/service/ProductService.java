@@ -110,7 +110,7 @@ public class ProductService {
         }
 
         if (dto.variants() != null) {
-            product.setVariants(this.mergeVariants(product, dto.variants()));
+            this.replaceProductVariants(product, this.mergeVariants(product, dto.variants()));
         }
 
         return this.productRepository.save(product);
@@ -209,11 +209,37 @@ public class ProductService {
                 variant.setStock(variantDto.stock());
             }
             variant.setProduct(product);
-            variant.setAttributeValues(this.buildVariantAttributeValues(variantDto.attributeValues(), variant));
+            this.replaceVariantAttributeValues(
+                    variant,
+                    this.buildVariantAttributeValues(variantDto.attributeValues(), variant)
+            );
             mergedVariants.add(variant);
         }
 
         return mergedVariants;
+    }
+
+    private void replaceProductVariants(Product product, List<ProductVariant> variants) {
+        if (product.getVariants() == null) {
+            product.setVariants(new ArrayList<>(variants));
+            return;
+        }
+
+        product.getVariants().clear();
+        product.getVariants().addAll(variants);
+    }
+
+    private void replaceVariantAttributeValues(
+        ProductVariant variant,
+        List<VariantAttributeValue> attributeValues
+    ) {
+        if (variant.getAttributeValues() == null) {
+            variant.setAttributeValues(new ArrayList<>(attributeValues));
+            return;
+        }
+
+        variant.getAttributeValues().clear();
+        variant.getAttributeValues().addAll(attributeValues);
     }
 
     private List<VariantAttributeValue> buildVariantAttributeValues(
