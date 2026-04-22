@@ -35,7 +35,7 @@ public class ReviewService {
                 "Product with id " + productId + " not found"
         ));
 
-        if (reviewRepository.existsByProductAndBuyer(product, user)) {
+        if (reviewRepository.existsByProductAndBuyerAndDeletedAtIsNull(product, user)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Ya has dejado una review para este producto."
@@ -92,6 +92,8 @@ public class ReviewService {
         if (!review.getBuyer().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para eliminar esta review");
         }
+        
+        reviewRepository.deleteByReviewId(reviewId);
 
         review.setDeletedAt(LocalDateTime.now());
         return reviewRepository.save(review);
