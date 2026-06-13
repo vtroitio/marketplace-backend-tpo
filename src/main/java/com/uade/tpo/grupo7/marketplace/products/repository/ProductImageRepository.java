@@ -9,11 +9,10 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
+    int countByVariantId(Integer variantId);
 
-    int countByProductId(Long productId);
+    List<ProductImage> findAllByVariantIdOrderByPositionAsc(Integer variantId);
 
-    List<ProductImage> findAllByProductId(Long productId);
-
-    List<ProductImage> findByProductIdOrderByPositionAsc(Long productId);
+    List<ProductImage> findAllByVariantProductIdOrderByPositionAsc(Long productId);
 
 }

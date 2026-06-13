@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
@@ -16,4 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findDistinctByCategories_IdIn(Collection<Long> categoryIds);
     boolean existsByIdAndSellerIdAndDeletedAtIsNull(Long id, Long sellerId);
     Optional<List<Product>> findBySeller(User seller);
+    Page<Product> findBySellerId(Pageable pageable, Long userId);
 }

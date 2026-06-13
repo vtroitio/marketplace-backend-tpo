@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductDetailResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
@@ -16,7 +17,9 @@ public interface ProductService {
 
     Page<ProductResponse> getProductResponses(Pageable pageable);
 
-    ProductResponse getProductResponseById(Long productId);
+    Page<ProductResponse> getMyProductResponses(Pageable pageable, Long userId);
+
+    ProductDetailResponse getProductDetailResponseById(Long productId);
 
     ProductResponse createProductResponse(CreateProductRequest dto);
 
@@ -32,7 +35,9 @@ public interface ProductService {
 
     void deleteProduct(Long productId);
 
-    List<ProductImage> uploadProductImages(Long productId, List<MultipartFile> files);
+    ProductResponse setCoverImage(Long productId, Long imageId);
 
-    void deleteProductImage(Long productId, Long imgId);
+    List<ProductImage> uploadVariantImages(Long productId, Integer variantId, List<MultipartFile> files);
+
+    void deleteVariantImage(Long productId, Integer variantId, Long imgId);
 }

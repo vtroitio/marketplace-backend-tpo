@@ -64,11 +64,7 @@ public class Product {
     private LocalDateTime deletedAt;
 
     @ManyToMany
-    @JoinTable(
-        name = "product_category",
-        joinColumns = @JoinColumn(name = "product_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Schema(description = "Categorias asociadas al producto")
     private Set<Category> categories;
 
@@ -76,9 +72,9 @@ public class Product {
     @Schema(description = "Variantes asociadas al producto")
     private List<ProductVariant> variants;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Schema(description = "Lista de imagenes asociadas al producto")
-    private List<ProductImage> images;
+    @Column(name="cover_image_path")
+    @Schema(description = "Ruta de la imagen de portada del producto")
+    private String coverImagePath;
 
     @PrePersist
     public void prePersist() {
@@ -88,7 +84,12 @@ public class Product {
     }
 
     public void softDelete() {
-        if (this.deletedAt != null) return;
+        if (this.deletedAt != null)
+            return;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return this.deletedAt == null;
     }
 }

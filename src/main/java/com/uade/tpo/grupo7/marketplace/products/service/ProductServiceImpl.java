@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductVariantRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductDetailResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductVariantRequest;
@@ -57,12 +58,11 @@ public class ProductServiceImpl implements ProductService {
     private final AttributeValueRepository attributeValueRepository;
 
     public ProductServiceImpl(
-        ProductRepository productRepository,
-        CategoryRepository categoryRepository,
-        ProductImageRepository productImageRepository,
-        ProductVariantRepository productVariantRepository,
-        AttributeValueRepository attributeValueRepository
-    ) {
+            ProductRepository productRepository,
+            CategoryRepository categoryRepository,
+            ProductImageRepository productImageRepository,
+            ProductVariantRepository productVariantRepository,
+            AttributeValueRepository attributeValueRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productImageRepository = productImageRepository;
@@ -79,8 +79,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public ProductResponse getProductResponseById(Long productId) {
-        return ProductMapper.toResponse(this.getProductById(productId));
+    public ProductDetailResponse getProductDetailResponseById(Long productId) {
+        return ProductMapper.toDetailResponse(this.getProductById(productId));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<ProductResponse> getMyProductResponses(Pageable pageable, Long userId) {
+        return this.productRepository.findBySellerId(pageable, userId)
+                .map(ProductMapper::toResponse);
     }
 
     @Transactional
@@ -107,8 +114,7 @@ public class ProductServiceImpl implements ProductService {
         return this.productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Product not found"
-                ));
+                        "Product not found"));
     }
 
     @Transactional
@@ -173,8 +179,7 @@ public class ProductServiceImpl implements ProductService {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Categories not found: " + missingCategoryIds
-            );
+                    "Categories not found: " + missingCategoryIds);
         }
 
         return new HashSet<>(foundCategories);
@@ -225,8 +230,7 @@ public class ProductServiceImpl implements ProductService {
                 if (variant == null) {
                     throw new ResponseStatusException(
                             HttpStatus.BAD_REQUEST,
-                            "Variant not found for product: " + variantDto.id()
-                    );
+                            "Variant not found for product: " + variantDto.id());
                 }
             } else {
                 variant = ProductVariant.builder()
@@ -246,8 +250,7 @@ public class ProductServiceImpl implements ProductService {
             variant.setProduct(product);
             this.replaceVariantAttributeValues(
                     variant,
-                    this.buildVariantAttributeValues(variantDto.attributeValues(), variant)
-            );
+                    this.buildVariantAttributeValues(variantDto.attributeValues(), variant));
             mergedVariants.add(variant);
         }
 
@@ -265,9 +268,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void replaceVariantAttributeValues(
-        ProductVariant variant,
-        List<VariantAttributeValue> attributeValues
-    ) {
+            ProductVariant variant,
+            List<VariantAttributeValue> attributeValues) {
         if (variant.getAttributeValues() == null) {
             variant.setAttributeValues(new ArrayList<>(attributeValues));
             return;
@@ -278,14 +280,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private List<VariantAttributeValue> buildVariantAttributeValues(
-        List<VariantAttributeValueRequest> attributeValues,
-        ProductVariant variant
-    ) {
+            List<VariantAttributeValueRequest> attributeValues,
+            ProductVariant variant) {
         if (attributeValues == null || attributeValues.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Each variant must include at least one attribute value"
-            );
+                    "Each variant must include at least one attribute value");
         }
 
         Set<Long> requestedIds = attributeValues.stream()
@@ -295,8 +295,7 @@ public class ProductServiceImpl implements ProductService {
         if (requestedIds.size() != attributeValues.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Attribute values must not be duplicated within the same variant"
-            );
+                    "Attribute values must not be duplicated within the same variant");
         }
 
         List<AttributeValue> foundValues = this.attributeValueRepository.findAllById(requestedIds);
@@ -308,8 +307,7 @@ public class ProductServiceImpl implements ProductService {
             missingIds.removeAll(foundIds);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Attribute values not found: " + missingIds
-            );
+                    "Attribute values not found: " + missingIds);
         }
 
         Set<Long> attributeIds = foundValues.stream()
@@ -318,8 +316,7 @@ public class ProductServiceImpl implements ProductService {
         if (attributeIds.size() != foundValues.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "A variant cannot have two values for the same attribute"
-            );
+                    "A variant cannot have two values for the same attribute");
         }
 
         return foundValues.stream()
@@ -335,8 +332,7 @@ public class ProductServiceImpl implements ProductService {
         if (uniqueSkus.size() != skus.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant SKUs must be unique within the same product"
-            );
+                    "Variant SKUs must be unique within the same product");
         }
     }
 
@@ -348,61 +344,141 @@ public class ProductServiceImpl implements ProductService {
         if (alreadyExists) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant SKU already exists: " + sku
-            );
+                    "Variant SKU already exists: " + sku);
         }
+    }
+
+    @Override
+    public ProductResponse setCoverImage(Long productId, Long imageId) {
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found"));
+
+        ProductImage image = this.productImageRepository.findById(imageId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Image not found"));
+
+        ProductVariant variant = image.getVariant();
+
+        if (variant == null || variant.getProduct() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Image is not associated with a valid variant");
+        }
+
+        if (!variant.getProduct().getId().equals(productId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Image does not belong to this product");
+        }
+
+        product.setCoverImagePath(image.getPath());
+
+        Product savedProduct = this.productRepository.save(product);
+
+        return ProductMapper.toResponse(savedProduct);
     }
 
     @Transactional
     @Override
-    public List<ProductImage> uploadProductImages(Long productId, List<MultipartFile> files) {
-        final int currentImages = this.productImageRepository.countByProductId(productId);
+    public List<ProductImage> uploadVariantImages(
+            Long productId,
+            Integer variantId,
+            List<MultipartFile> files) {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Variant not found"));
+
+        if (!variant.getProduct().getId().equals(productId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Variant does not belong to this product");
+        }
+
+        final int currentImages = this.productImageRepository.countByVariantId(variantId);
 
         if (currentImages + files.size() > MAX_IMAGES) {
             throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Cannot upload more than " + MAX_IMAGES + " images for a product."
-            );
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot upload more than " + MAX_IMAGES + " images for a variant.");
         }
 
-        Product product = this.getProductById(productId);
-
         int position = currentImages;
+
         for (MultipartFile file : files) {
             try {
                 String filePath = this.saveFile(file, productId);
+
                 ProductImage productImage = ProductImage.builder()
-                    .product(product)
-                    .position(position)
-                    .path(filePath)
-                    .build();
+                        .variant(variant)
+                        .position(position)
+                        .path(filePath)
+                        .build();
+
                 this.productImageRepository.save(productImage);
                 position++;
+
             } catch (IOException e) {
                 throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error saving file: " + file.getOriginalFilename(),
-                    e
-                );
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Error saving file: " + file.getOriginalFilename(),
+                        e);
             }
         }
 
-        return this.productImageRepository.findAllByProductId(productId);
+        return this.productImageRepository.findAllByVariantIdOrderByPositionAsc(variantId);
     }
 
     @Transactional
     @Override
-    public void deleteProductImage(Long productId, Long imgId) {
-        this.productImageRepository.deleteById(imgId);
+    public void deleteVariantImage(Long productId, Integer variantId, Long imgId) {
+        ProductImage image = this.productImageRepository.findById(imgId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Image not found"));
 
-        List<ProductImage> images = this.productImageRepository
-            .findByProductIdOrderByPositionAsc(productId);
+        ProductVariant variant = image.getVariant();
 
-        for (int i = 0; i < images.size(); i++) {
-            images.get(i).setPosition(i);
+        if (!variant.getId().equals(variantId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Image does not belong to this variant");
         }
 
-        this.productImageRepository.saveAll(images);
+        Product product = variant.getProduct();
+
+        if (!product.getId().equals(productId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Variant does not belong to this product");
+        }
+
+        String deletedImagePath = image.getPath();
+
+        this.productImageRepository.delete(image);
+        deleteFile(deletedImagePath);
+
+        List<ProductImage> variantImages = this.productImageRepository
+                .findAllByVariantIdOrderByPositionAsc(variantId);
+
+        for (int i = 0; i < variantImages.size(); i++) {
+            variantImages.get(i).setPosition(i);
+        }
+
+        this.productImageRepository.saveAll(variantImages);
+
+        if (deletedImagePath.equals(product.getCoverImagePath())) {
+            List<ProductImage> remainingImages = this.productImageRepository
+                    .findAllByVariantProductIdOrderByPositionAsc(productId);
+
+            product.setCoverImagePath(
+                    remainingImages.isEmpty() ? null : remainingImages.get(0).getPath());
+
+            this.productRepository.save(product);
+        }
     }
 
     private String saveFile(MultipartFile file, Long productId) throws IOException {
@@ -415,9 +491,9 @@ public class ProductServiceImpl implements ProductService {
         String originalName = file.getOriginalFilename();
 
         String extension = Optional.ofNullable(originalName)
-            .filter(name -> name.contains("."))
-            .map(name -> name.substring(name.lastIndexOf(".")))
-            .orElse("");
+                .filter(name -> name.contains("."))
+                .map(name -> name.substring(name.lastIndexOf(".")))
+                .orElse("");
 
         String fileName = UUID.randomUUID() + extension;
         Path filePath = uploadPath.resolve(fileName);
@@ -425,4 +501,19 @@ public class ProductServiceImpl implements ProductService {
 
         return "/uploads/products/" + productId + "/" + fileName;
     }
+
+    private void deleteFile(String imagePath) {
+        try {
+            String relativePath = imagePath.replaceFirst("^/uploads/", "");
+            Path filePath = Paths.get(uploadDir).resolve(relativePath);
+
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error deleting image file",
+                    e);
+        }
+    }
+
 }

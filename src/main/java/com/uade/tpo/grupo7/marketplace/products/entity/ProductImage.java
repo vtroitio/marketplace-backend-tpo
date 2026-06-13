@@ -35,8 +35,8 @@ public class ProductImage {
     private Integer position;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "variant_id", nullable = false)
     @JsonIgnore
-    private Product product;
+    private ProductVariant variant;
 
 }

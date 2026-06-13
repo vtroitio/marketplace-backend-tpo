@@ -6,9 +6,11 @@ import java.util.List;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.AttributeValueSummaryResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductDetailResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductVariantResponse;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
+import com.uade.tpo.grupo7.marketplace.products.entity.ProductVariant;
 
 public class ProductMapper {
 
@@ -21,14 +23,35 @@ public class ProductMapper {
                 .build();
     }
 
+    public static ProductDetailResponse toDetailResponse(Product product) {
+        return new ProductDetailResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCoverImagePath(),
+                product.getVariants().stream()
+                    .mapToInt(ProductVariant::getStock)
+                    .sum(),
+                product.isActive(),
+                mapCategories(product),
+                mapVariants(product)
+        );
+    }
+
     public static ProductResponse toResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getPrice(),
-                product.getDescription(),
-                mapCategories(product),
-                mapVariants(product)
+                product.getCoverImagePath(),
+                product.getVariants().stream()
+                    .mapToInt(ProductVariant::getStock)
+                    .sum(),
+                product.getVariants().size(),
+                product.isActive()
+                // mapCategories(product),
+                // mapVariants(product)
         );
     }
 
@@ -53,14 +76,13 @@ public class ProductMapper {
                         variant.getSku(),
                         variant.getPrice(),
                         variant.getStock(),
-                        mapAttributeValues(variant.getAttributeValues())
-                ))
+                        variant.getImages(),
+                        mapAttributeValues(variant.getAttributeValues())))
                 .toList();
     }
 
     private static List<AttributeValueSummaryResponse> mapAttributeValues(
-        List<com.uade.tpo.grupo7.marketplace.products.entity.VariantAttributeValue> attributeValues
-    ) {
+            List<com.uade.tpo.grupo7.marketplace.products.entity.VariantAttributeValue> attributeValues) {
         if (attributeValues == null) {
             return List.of();
         }
@@ -77,8 +99,7 @@ public class ProductMapper {
                             attributeValue.getHexColor(),
                             attribute.getId(),
                             attribute.getName(),
-                            attribute.getCode()
-                    );
+                            attribute.getCode());
                 })
                 .toList();
     }
