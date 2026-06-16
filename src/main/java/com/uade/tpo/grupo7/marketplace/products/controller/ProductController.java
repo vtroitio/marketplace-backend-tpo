@@ -57,8 +57,21 @@ public class ProductController {
   @Parameter(name = "size", description = "Cantidad de elementos por pÃ¡gina", example = "5")
   @Parameter(name = "sort", description = "Ordenamiento con formato campo,direccion. Ejemplo: id,asc o name,desc", example = "id,asc")
   public Page<ProductResponse> getProducts(
-      @ParameterObject @PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable) {
-    return this.productService.getProductResponses(pageable);
+      @ParameterObject @PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable,
+      @RequestParam(required = false) String search,
+      @RequestParam(required = false) List<Long> categoryIds,
+      @RequestParam(required = false) List<Long> colorIds,
+      @RequestParam(required = false) List<Long> sizeIds,
+      @RequestParam(required = false) Double minPrice,
+      @RequestParam(required = false) Double maxPrice) {
+    return this.productService.getProductResponses(
+        pageable,
+        search,
+        categoryIds,
+        colorIds,
+        sizeIds,
+        minPrice,
+        maxPrice);
   }
 
   @GetMapping("me")

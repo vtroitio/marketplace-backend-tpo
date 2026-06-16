@@ -72,9 +72,51 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<ProductResponse> getProductResponses(Pageable pageable) {
-        return this.productRepository.findAll(pageable)
-                .map(ProductMapper::toResponse);
+    public Page<ProductResponse> getProductResponses(
+            Pageable pageable,
+            String search,
+            List<Long> categoryIds,
+            List<Long> colorIds,
+            List<Long> sizeIds,
+            Double minPrice,
+            Double maxPrice) {
+        search = normalizeSearch(search);
+        categoryIds = nullIfEmpty(categoryIds);
+        colorIds = nullIfEmpty(colorIds);
+        sizeIds = nullIfEmpty(sizeIds);
+
+        boolean hasFilters = 
+                search != null ||
+                categoryIds != null ||
+                colorIds != null ||
+                sizeIds != null ||
+                minPrice != null ||
+                maxPrice != null;
+
+        Page<Product> products = hasFilters
+                ? this.productRepository.findWithFilters(
+                        search,
+                        categoryIds,
+                        colorIds,
+                        sizeIds,
+                        minPrice,
+                        maxPrice,
+                        pageable)
+                : this.productRepository.findAll(pageable);
+
+        return products.map(ProductMapper::toResponse);
+    }
+
+    private String normalizeSearch(String search) {
+        if (search == null || search.isBlank()) {
+            return "";
+        }
+
+        return search.trim().toLowerCase();
+    }
+
+    private <T> List<T> nullIfEmpty(List<T> list) {
+        return list == null || list.isEmpty() ? null : list;
     }
 
     @Transactional(readOnly = true)

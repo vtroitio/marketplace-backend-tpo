@@ -15,7 +15,7 @@ import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
 
 public interface ProductService {
 
-    Page<ProductResponse> getProductResponses(Pageable pageable);
+    Page<ProductResponse> getProductResponses(Pageable pageable, String search, List<Long> categoryIds, List<Long> colorIds, List<Long> sizeIds, Double minPrice, Double maxPrice);
 
     Page<ProductResponse> getMyProductResponses(Pageable pageable, Long userId);
 
