@@ -10,6 +10,7 @@ public record ProductDetailResponse(
     String coverImagePath,
     Integer totalStock,
     Boolean isActive,
+    ProductOwnerResponse owner,
     List<CategoryResponse> categories,
     List<ProductVariantResponse> variants
 ) {

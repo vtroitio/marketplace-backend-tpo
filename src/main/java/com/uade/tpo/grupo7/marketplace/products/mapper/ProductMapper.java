@@ -7,6 +7,7 @@ import java.util.List;
 import com.uade.tpo.grupo7.marketplace.products.dto.AttributeValueSummaryResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductDetailResponse;
+import com.uade.tpo.grupo7.marketplace.products.dto.ProductOwnerResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.ProductVariantResponse;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
@@ -34,6 +35,7 @@ public class ProductMapper {
                     .mapToInt(ProductVariant::getStock)
                     .sum(),
                 product.isActive(),
+                mapOwner(product),
                 mapCategories(product),
                 mapVariants(product)
         );
@@ -102,5 +104,16 @@ public class ProductMapper {
                             attribute.getCode());
                 })
                 .toList();
+    }
+
+    private static ProductOwnerResponse mapOwner(Product product) {
+        if (product.getSeller() == null) {
+            return null;
+        }
+
+        return new ProductOwnerResponse(
+                product.getSeller().getId(),
+                product.getSeller().getUsername()
+        );
     }
 }
