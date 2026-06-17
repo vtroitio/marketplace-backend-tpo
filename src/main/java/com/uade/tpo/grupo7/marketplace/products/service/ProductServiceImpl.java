@@ -85,8 +85,7 @@ public class ProductServiceImpl implements ProductService {
         colorIds = nullIfEmpty(colorIds);
         sizeIds = nullIfEmpty(sizeIds);
 
-        boolean hasFilters = 
-                search != null ||
+        boolean hasFilters = search != null ||
                 categoryIds != null ||
                 colorIds != null ||
                 sizeIds != null ||
@@ -102,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
                         minPrice,
                         maxPrice,
                         pageable)
-                : this.productRepository.findAll(pageable);
+                : this.productRepository.findByActiveTrueAndDeletedAtIsNull(pageable);
 
         return products.map(ProductMapper::toResponse);
     }
@@ -200,8 +199,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public void deleteProduct(Long productId) throws ResponseStatusException {
-        this.getProductById(productId);
-        this.productRepository.deleteById(productId);
+        Product product = this.getProductById(productId);
+        product.softDelete();
+        this.productRepository.save(product);
     }
 
     private Set<Category> resolveCategories(List<Long> categoryIds) {
@@ -558,4 +558,31 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Transactional
+    @Override
+    public ProductResponse activateProduct(Long productId) {
+        Product product = this.getProductById(productId);
+
+        if (product.getDeletedAt() != null) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se puede activar un producto eliminado");
+        }
+
+        product.activate();
+
+        Product savedProduct = this.productRepository.save(product);
+        return ProductMapper.toResponse(savedProduct);
+    }
+
+    @Transactional
+    @Override
+    public ProductResponse deactivateProduct(Long productId) {
+        Product product = this.getProductById(productId);
+
+        product.deactivate();
+
+        Product savedProduct = this.productRepository.save(product);
+        return ProductMapper.toResponse(savedProduct);
+    }
 }

@@ -185,6 +185,26 @@ public class ProductController {
           hasRole('ADMIN') or
           (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
       """)
+  @PatchMapping("{productId}/activate")
+  @Operation(summary = "Activar un producto", description = "Vuelve a publicar un producto desactivado")
+  public ProductResponse activateProduct(@PathVariable Long productId) {
+    return this.productService.activateProduct(productId);
+  }
+
+  @PreAuthorize("""
+          hasRole('ADMIN') or
+          (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+      """)
+  @PatchMapping("{productId}/deactivate")
+  @Operation(summary = "Desactivar un producto", description = "Oculta un producto del marketplace sin eliminarlo")
+  public ProductResponse deactivateProduct(@PathVariable Long productId) {
+    return this.productService.deactivateProduct(productId);
+  }
+
+  @PreAuthorize("""
+          hasRole('ADMIN') or
+          (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+      """)
   @PatchMapping("{productId}/cover-image/{imageId}")
   public ProductResponse setCoverImage(
       @PathVariable Long productId,

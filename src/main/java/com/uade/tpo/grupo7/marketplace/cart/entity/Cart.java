@@ -44,7 +44,7 @@ public class Cart {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "buyer_id", referencedColumnName = "id", nullable = false, unique = true)
     private User buyer;
 
     @Column(name = "total_amount", nullable = false)

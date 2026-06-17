@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.grupo7.marketplace.cart.dto.AddToCartRequest;
 import com.uade.tpo.grupo7.marketplace.cart.dto.CartResponse;
+import com.uade.tpo.grupo7.marketplace.cart.dto.CartValidationResponse;
+import com.uade.tpo.grupo7.marketplace.cart.dto.SyncCartRequest;
+import com.uade.tpo.grupo7.marketplace.cart.dto.SyncCartResponse;
 import com.uade.tpo.grupo7.marketplace.cart.dto.UpdateCartItemRequest;
 import com.uade.tpo.grupo7.marketplace.cart.service.CartService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
@@ -44,8 +47,7 @@ public class CartController {
     @Operation(summary = "Agregar un item al carrito")
     public CartResponse addItem(
             @AuthenticationPrincipal User principal,
-            @Valid @RequestBody AddToCartRequest request
-    ) {
+            @Valid @RequestBody AddToCartRequest request) {
         return cartService.addItemToCart(currentUserId(principal), request);
     }
 
@@ -55,8 +57,7 @@ public class CartController {
     public CartResponse updateItem(
             @AuthenticationPrincipal User principal,
             @PathVariable Long itemId,
-            @Valid @RequestBody UpdateCartItemRequest request
-    ) {
+            @Valid @RequestBody UpdateCartItemRequest request) {
         return cartService.updateItemQuantity(currentUserId(principal), itemId, request.quantity());
     }
 
@@ -65,8 +66,7 @@ public class CartController {
     @Operation(summary = "Eliminar un item del carrito")
     public CartResponse removeItem(
             @AuthenticationPrincipal User principal,
-            @PathVariable Long itemId
-    ) {
+            @PathVariable Long itemId) {
         return cartService.removeItem(currentUserId(principal), itemId);
     }
 
@@ -76,6 +76,23 @@ public class CartController {
     public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User principal) {
         cartService.clearCart(currentUserId(principal));
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('BUYER')")
+    @PostMapping("sync")
+    @Operation(summary = "Sincronizar carrito local con el carrito del usuario autenticado")
+    public SyncCartResponse syncCart(
+            @AuthenticationPrincipal User principal,
+            @Valid @RequestBody SyncCartRequest request) {
+        return cartService.syncCart(currentUserId(principal), request);
+    }
+
+    @PostMapping("validate")
+    @PreAuthorize("hasRole('BUYER')")
+    @Operation(summary = "Validar y actualizar el carrito antes del checkout")
+    public CartValidationResponse validateCart(
+            @AuthenticationPrincipal User principal) {
+        return cartService.validateCartForCheckout(currentUserId(principal));
     }
 
     private Long currentUserId(User principal) {

@@ -56,6 +56,10 @@ public class Product {
     @Schema(description = "Usuario vendedor del producto")
     private User seller;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
     @Column(nullable = false, updatable = false)
     @Schema(description = "Fecha de creacion del producto")
     private LocalDateTime createdAt;
@@ -72,7 +76,7 @@ public class Product {
     @Schema(description = "Variantes asociadas al producto")
     private List<ProductVariant> variants;
 
-    @Column(name="cover_image_path")
+    @Column(name = "cover_image_path")
     @Schema(description = "Ruta de la imagen de portada del producto")
     private String coverImagePath;
 
@@ -83,6 +87,22 @@ public class Product {
         }
     }
 
+    public void activate() {
+        if (this.deletedAt != null) {
+            throw new IllegalStateException("No se puede activar un producto eliminado");
+        }
+
+        this.active = true;
+    }
+
+    public void deactivate() {
+        if (this.deletedAt != null) {
+            return;
+        }
+
+        this.active = false;
+    }
+
     public void softDelete() {
         if (this.deletedAt != null)
             return;
@@ -90,6 +110,6 @@ public class Product {
     }
 
     public boolean isActive() {
-        return this.deletedAt == null;
+        return Boolean.TRUE.equals(this.active) && this.deletedAt == null;
     }
 }

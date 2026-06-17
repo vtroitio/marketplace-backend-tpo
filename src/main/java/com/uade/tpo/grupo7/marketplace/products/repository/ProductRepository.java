@@ -30,7 +30,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value = """
                 SELECT DISTINCT p
                 FROM Product p
-                WHERE (:search IS NULL OR (
+                WHERE p.active = true
+                AND p.deletedAt IS NULL
+                AND (:search IS NULL OR (
                     LOWER(p.name) LIKE CONCAT('%', :search, '%')
                     OR LOWER(p.description) LIKE CONCAT('%', :search, '%')
                 ))
@@ -47,6 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         SELECT 1
                         FROM ProductVariant v
                         WHERE v.product = p
+                        AND v.stock > 0
                         AND (:colorIds IS NULL OR EXISTS (
                             SELECT 1
                             FROM v.attributeValues colorVav
@@ -62,7 +65,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """, countQuery = """
                 SELECT COUNT(DISTINCT p)
                 FROM Product p
-                WHERE (:search IS NULL OR (
+                WHERE p.active = true
+                AND p.deletedAt IS NULL
+                AND (:search IS NULL OR (
                     LOWER(p.name) LIKE CONCAT('%', :search, '%')
                     OR LOWER(p.description) LIKE CONCAT('%', :search, '%')
                 ))
@@ -79,6 +84,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         SELECT 1
                         FROM ProductVariant v
                         WHERE v.product = p
+                        AND v.stock > 0
                         AND (:colorIds IS NULL OR EXISTS (
                             SELECT 1
                             FROM v.attributeValues colorVav
@@ -101,5 +107,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("maxPrice") Double maxPrice,
             Pageable pageable);
 
-    Page<Product> findByDeletedAtIsNull(Pageable pageable);
+    Page<Product> findByActiveTrueAndDeletedAtIsNull(Pageable pageable);
 }

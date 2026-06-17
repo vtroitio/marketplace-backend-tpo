@@ -40,4 +40,8 @@ public interface ProductService {
     List<ProductImage> uploadVariantImages(Long productId, Integer variantId, List<MultipartFile> files);
 
     void deleteVariantImage(Long productId, Integer variantId, Long imgId);
+
+    ProductResponse deactivateProduct(Long productId);
+
+    ProductResponse activateProduct(Long productId);
 }
