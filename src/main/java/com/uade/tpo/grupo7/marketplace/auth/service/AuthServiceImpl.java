@@ -42,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserSessionRepository userSessionRepository;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     @Override
     public AuthTokens register(RegisterRequest dto) {
 
@@ -75,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
         return new AuthTokens(accessToken, refreshToken);
     }
 
+    @Transactional
     @Override
     public AuthTokens login(LoginRequest dto) {
         try {
