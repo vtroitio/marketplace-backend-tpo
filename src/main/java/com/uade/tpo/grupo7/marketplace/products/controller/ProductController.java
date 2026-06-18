@@ -131,8 +131,9 @@ public class ProductController {
               }
             ]
           }
-          """))) CreateProductRequest dto) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.createProductResponse(dto));
+          """))) CreateProductRequest dto,
+      @AuthenticationPrincipal User user) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.createProductResponse(dto, user));
   }
 
   @PreAuthorize("""
@@ -235,6 +236,20 @@ public class ProductController {
       @PathVariable Integer variantId,
       @PathVariable Long imgId) {
     this.productService.deleteVariantImage(productId, variantId, imgId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PreAuthorize("""
+          hasRole('ADMIN') or
+          (hasRole('SELLER') and @ownership.isProductOwner(#productId, authentication.principal))
+      """)
+  @PatchMapping("{productId}/variants/{variantId}/images/reorder")
+  @ApiResponse(responseCode = "204")
+  public ResponseEntity<Void> reorderVariantImages(
+      @PathVariable Long productId,
+      @PathVariable Integer variantId,
+      @RequestBody List<Long> imageIds) {
+    this.productService.reorderVariantImages(productId, variantId, imageIds);
     return ResponseEntity.noContent().build();
   }
 }

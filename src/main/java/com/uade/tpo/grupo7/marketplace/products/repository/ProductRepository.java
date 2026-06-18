@@ -33,8 +33,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 WHERE p.active = true
                 AND p.deletedAt IS NULL
                 AND (:search IS NULL OR (
-                    LOWER(p.name) LIKE CONCAT('%', :search, '%')
-                    OR LOWER(p.description) LIKE CONCAT('%', :search, '%')
+                    LOWER(p.name) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
+                    OR LOWER(p.description) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                 ))
                 AND (:categoryIds IS NULL OR EXISTS (
                     SELECT 1
@@ -50,15 +50,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         FROM ProductVariant v
                         WHERE v.product = p
                         AND v.stock > 0
+                        AND v.deletedAt IS NULL
                         AND (:colorIds IS NULL OR EXISTS (
                             SELECT 1
-                            FROM v.attributeValues colorVav
-                            WHERE colorVav.attributeValue.id IN :colorIds
+                            FROM VariantAttributeValue colorVav
+                            WHERE colorVav.variant = v
+                            AND colorVav.attributeValue.id IN :colorIds
                         ))
                         AND (:sizeIds IS NULL OR EXISTS (
                             SELECT 1
-                            FROM v.attributeValues sizeVav
-                            WHERE sizeVav.attributeValue.id IN :sizeIds
+                            FROM VariantAttributeValue sizeVav
+                            WHERE sizeVav.variant = v
+                            AND sizeVav.attributeValue.id IN :sizeIds
                         ))
                     )
                 )
@@ -68,8 +71,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 WHERE p.active = true
                 AND p.deletedAt IS NULL
                 AND (:search IS NULL OR (
-                    LOWER(p.name) LIKE CONCAT('%', :search, '%')
-                    OR LOWER(p.description) LIKE CONCAT('%', :search, '%')
+                    LOWER(p.name) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
+                    OR LOWER(p.description) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                 ))
                 AND (:categoryIds IS NULL OR EXISTS (
                     SELECT 1
@@ -85,15 +88,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         FROM ProductVariant v
                         WHERE v.product = p
                         AND v.stock > 0
+                        AND v.deletedAt IS NULL
                         AND (:colorIds IS NULL OR EXISTS (
                             SELECT 1
-                            FROM v.attributeValues colorVav
-                            WHERE colorVav.attributeValue.id IN :colorIds
+                            FROM VariantAttributeValue colorVav
+                            WHERE colorVav.variant = v
+                            AND colorVav.attributeValue.id IN :colorIds
                         ))
                         AND (:sizeIds IS NULL OR EXISTS (
                             SELECT 1
-                            FROM v.attributeValues sizeVav
-                            WHERE sizeVav.attributeValue.id IN :sizeIds
+                            FROM VariantAttributeValue sizeVav
+                            WHERE sizeVav.variant = v
+                            AND sizeVav.attributeValue.id IN :sizeIds
                         ))
                     )
                 )

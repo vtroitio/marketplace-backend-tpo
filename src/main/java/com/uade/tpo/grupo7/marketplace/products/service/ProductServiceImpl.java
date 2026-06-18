@@ -42,6 +42,7 @@ import com.uade.tpo.grupo7.marketplace.products.repository.CategoryRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductImageRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductVariantRepository;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -108,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 
     private String normalizeSearch(String search) {
         if (search == null || search.isBlank()) {
-            return "";
+            return null;
         }
 
         return search.trim().toLowerCase();
@@ -133,8 +134,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public ProductResponse createProductResponse(CreateProductRequest dto) {
-        return ProductMapper.toResponse(this.createProduct(dto));
+    public ProductResponse createProductResponse(CreateProductRequest dto, User user) {
+        return ProductMapper.toResponse(this.createProduct(dto, user));
     }
 
     @Transactional
@@ -160,8 +161,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product createProduct(CreateProductRequest dto) {
+    public Product createProduct(CreateProductRequest dto, User user) {
         Product product = ProductMapper.toEntitiy(dto);
+        product.setSeller(user);
         product.setCategories(this.resolveCategories(dto.categoryIds()));
         product.setVariants(this.buildVariants(dto.variants(), product));
 
@@ -521,6 +523,33 @@ public class ProductServiceImpl implements ProductService {
 
             this.productRepository.save(product);
         }
+    }
+
+    @Transactional
+    @Override
+    public void reorderVariantImages(Long productId, Integer variantId, List<Long> imageIds) {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Variante no encontrada"));
+
+        if (!variant.getProduct().getId().equals(productId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "La variante no pertenece a este producto");
+        }
+
+        List<ProductImage> images = this.productImageRepository
+                .findAllByVariantIdOrderByPositionAsc(variantId);
+
+        for (int i = 0; i < imageIds.size(); i++) {
+            final Long imageId = imageIds.get(i);
+            final int newPosition = i;
+            images.stream()
+                    .filter(img -> img.getId().equals(imageId))
+                    .findFirst()
+                    .ifPresent(img -> img.setPosition(newPosition));
+        }
+
+        this.productImageRepository.saveAll(images);
     }
 
     private String saveFile(MultipartFile file, Long productId) throws IOException {
