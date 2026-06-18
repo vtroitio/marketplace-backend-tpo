@@ -8,10 +8,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.grupo7.marketplace.order.dto.CheckoutRequest;
 import com.uade.tpo.grupo7.marketplace.order.dto.OrderResponse;
 import com.uade.tpo.grupo7.marketplace.order.service.OrderService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
@@ -34,8 +36,8 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Confirmar compra a partir del carrito actual")
-    public OrderResponse checkout(@AuthenticationPrincipal User principal) {
-        return orderService.checkout(currentUserId(principal));
+    public OrderResponse checkout(@RequestBody CheckoutRequest request, @AuthenticationPrincipal User principal) {
+        return orderService.checkout(currentUserId(principal), request);
     }
 
     @PreAuthorize("hasRole('BUYER')")

@@ -54,8 +54,41 @@ public class PurchaseOrder {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotalAmount;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal discountAmount;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal shippingCost;
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(length = 40)
+    private String couponCode;
+
+    @Column(nullable = false)
+    private String shippingFullName;
+
+    @Column(nullable = false)
+    private String shippingAddress;
+
+    @Column(nullable = false)
+    private String shippingCity;
+
+    @Column(nullable = false)
+    private String shippingPostalCode;
+
+    @Column(nullable = false)
+    private String paymentStatus;
+
+    @Column(nullable = false)
+    private String paymentMethod;
+
+    @Column(length = 4)
+    private String cardLastFour;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
