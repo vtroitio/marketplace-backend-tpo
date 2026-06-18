@@ -46,16 +46,16 @@ public class AuthServiceImpl implements AuthService {
     public AuthTokens register(RegisterRequest dto) {
 
         if (this.userRepository.existsByEmail(dto.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está en uso");
         }
 
         if (this.userRepository.existsByUsername(dto.username())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already in use");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El nombre de usuario ya está en uso");
         }
 
         String passwordHash = this.passwordEncoder.encode(dto.password());
         Role buyerRole = this.roleRepository.findByCode(RoleCode.BUYER)
-                .orElseThrow(() -> new RuntimeException("Buyer role not found"));
+                .orElseThrow(() -> new RuntimeException("Rol de comprador no encontrado"));
 
         User user = User.builder()
                 .email(dto.email())
@@ -83,11 +83,11 @@ public class AuthServiceImpl implements AuthService {
                             dto.email(),
                             dto.password()));
         } catch (AuthenticationException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
 
         User user = this.userRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
 
         String accessToken = this.jwtService.generateAccessToken(user);
         String refreshToken = this.jwtService.generateRefreshToken(user);
@@ -99,11 +99,11 @@ public class AuthServiceImpl implements AuthService {
 
     public Optional<AuthTokens> refresh(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token de actualización inválido");
         }
 
         final UserSession currentSession = this.userSessionRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token de actualización inválido"));
 
         if (currentSession.getRevokedAt() != null) {
             return Optional.empty();
@@ -112,11 +112,11 @@ public class AuthServiceImpl implements AuthService {
         final String userEmail = this.jwtService.extractUsername(refreshToken);
 
         if (userEmail == null || userEmail.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token de actualización inválido");
         }
 
         final User user = this.userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token de actualización inválido"));
 
         if (!this.jwtService.isTokenValid(refreshToken, user)) {
             return Optional.empty();

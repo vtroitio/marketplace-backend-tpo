@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         ) {
                 ErrorResponse errorResponse = new ErrorResponse(
                         HttpStatus.FORBIDDEN.value(),
-                        "Access Denied",
+                        "Acceso Denegado",
                         null, 
                         request.getMethod(),
                         request.getRequestURI());
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 
                 ErrorResponse errorResponse = new ErrorResponse(
                                 HttpStatus.BAD_REQUEST.value(),
-                                "Validation errors",
+                                "Errores de validación",
                                 validationErrors,
                                 request.getMethod(),
                                 request.getRequestURI());
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
 
                 ErrorResponse errorResponse = new ErrorResponse(
                                 HttpStatus.NOT_FOUND.value(),
-                                "Resource not found",
+                                "Recurso no encontrado",
                                 null,
                                 request.getMethod(),
                                 request.getRequestURI());
@@ -102,7 +102,7 @@ public class GlobalExceptionHandler {
 
                 ErrorResponse errorResponse = new ErrorResponse(
                         HttpStatus.CONFLICT.value(),
-                        "Invalid data",
+                        "Datos inválidos",
                         null,
                         request.getMethod(),
                         request.getRequestURI());
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
 
                 ErrorResponse errorResponse = new ErrorResponse(
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                "Internal server error",
+                                "Error interno del servidor",
                                 null,
                                 request.getMethod(),
                                 request.getRequestURI());

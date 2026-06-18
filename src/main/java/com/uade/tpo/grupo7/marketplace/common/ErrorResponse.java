@@ -13,7 +13,7 @@ public record ErrorResponse(
     @Schema(description = "Código de estado HTTP del error", example = "400")
     int status,
 
-    @Schema(description = "Mensaje descriptivo del error", example = "Validation errors")
+    @Schema(description = "Mensaje descriptivo del error", example = "Errores de validación")
     String message,
 
     @Schema(description = "Detalles adicionales sobre el error, como campos inválidos", example = "{\"name\": \"Name is required\", \"price\": \"Price must be positive\"}")  

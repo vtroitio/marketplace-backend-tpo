@@ -155,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
         return this.productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Product not found"));
+                        "Producto no encontrado"));
     }
 
     @Transactional
@@ -221,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Categories not found: " + missingCategoryIds);
+                    "Categorías no encontradas: " + missingCategoryIds);
         }
 
         return new HashSet<>(foundCategories);
@@ -272,7 +272,7 @@ public class ProductServiceImpl implements ProductService {
                 if (variant == null) {
                     throw new ResponseStatusException(
                             HttpStatus.BAD_REQUEST,
-                            "Variant not found for product: " + variantDto.id());
+                            "Variante no encontrada para el producto: " + variantDto.id());
                 }
             } else {
                 variant = ProductVariant.builder()
@@ -327,7 +327,7 @@ public class ProductServiceImpl implements ProductService {
         if (attributeValues == null || attributeValues.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Each variant must include at least one attribute value");
+                    "Cada variante debe incluir al menos un valor de atributo");
         }
 
         Set<Long> requestedIds = attributeValues.stream()
@@ -337,7 +337,7 @@ public class ProductServiceImpl implements ProductService {
         if (requestedIds.size() != attributeValues.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Attribute values must not be duplicated within the same variant");
+                    "Los valores de atributos no deben duplicarse dentro de la misma variante");
         }
 
         List<AttributeValue> foundValues = this.attributeValueRepository.findAllById(requestedIds);
@@ -349,7 +349,7 @@ public class ProductServiceImpl implements ProductService {
             missingIds.removeAll(foundIds);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Attribute values not found: " + missingIds);
+                    "Valores de atributos no encontrados: " + missingIds);
         }
 
         Set<Long> attributeIds = foundValues.stream()
@@ -358,7 +358,7 @@ public class ProductServiceImpl implements ProductService {
         if (attributeIds.size() != foundValues.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "A variant cannot have two values for the same attribute");
+                    "Una variante no puede tener dos valores para el mismo atributo");
         }
 
         return foundValues.stream()
@@ -374,7 +374,7 @@ public class ProductServiceImpl implements ProductService {
         if (uniqueSkus.size() != skus.size()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant SKUs must be unique within the same product");
+                    "Los SKU de variantes deben ser únicos dentro del mismo producto");
         }
     }
 
@@ -386,7 +386,7 @@ public class ProductServiceImpl implements ProductService {
         if (alreadyExists) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant SKU already exists: " + sku);
+                    "El SKU de variante ya existe: " + sku);
         }
     }
 
@@ -395,25 +395,25 @@ public class ProductServiceImpl implements ProductService {
         Product product = this.productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Product not found"));
+                        "Producto no encontrado"));
 
         ProductImage image = this.productImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Image not found"));
+                        "Imagen no encontrada"));
 
         ProductVariant variant = image.getVariant();
 
         if (variant == null || variant.getProduct() == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Image is not associated with a valid variant");
+                    "La imagen no está asociada con una variante válida");
         }
 
         if (!variant.getProduct().getId().equals(productId)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Image does not belong to this product");
+                    "La imagen no pertenece a este producto");
         }
 
         product.setCoverImagePath(image.getPath());
@@ -432,12 +432,12 @@ public class ProductServiceImpl implements ProductService {
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Variant not found"));
+                        "Variante no encontrada"));
 
         if (!variant.getProduct().getId().equals(productId)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant does not belong to this product");
+                    "La variante no pertenece a este producto");
         }
 
         final int currentImages = this.productImageRepository.countByVariantId(variantId);
@@ -445,7 +445,7 @@ public class ProductServiceImpl implements ProductService {
         if (currentImages + files.size() > MAX_IMAGES) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Cannot upload more than " + MAX_IMAGES + " images for a variant.");
+                    "No se pueden cargar más de " + MAX_IMAGES + " imágenes para una variante.");
         }
 
         int position = currentImages;
@@ -466,7 +466,7 @@ public class ProductServiceImpl implements ProductService {
             } catch (IOException e) {
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Error saving file: " + file.getOriginalFilename(),
+                        "Error al guardar el archivo: " + file.getOriginalFilename(),
                         e);
             }
         }
@@ -480,14 +480,14 @@ public class ProductServiceImpl implements ProductService {
         ProductImage image = this.productImageRepository.findById(imgId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Image not found"));
+                        "Imagen no encontrada"));
 
         ProductVariant variant = image.getVariant();
 
         if (!variant.getId().equals(variantId)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Image does not belong to this variant");
+                    "La imagen no pertenece a esta variante");
         }
 
         Product product = variant.getProduct();
@@ -495,7 +495,7 @@ public class ProductServiceImpl implements ProductService {
         if (!product.getId().equals(productId)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Variant does not belong to this product");
+                    "La variante no pertenece a este producto");
         }
 
         String deletedImagePath = image.getPath();
@@ -553,7 +553,7 @@ public class ProductServiceImpl implements ProductService {
         } catch (IOException e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error deleting image file",
+                    "Error al eliminar el archivo de imagen",
                     e);
         }
     }
