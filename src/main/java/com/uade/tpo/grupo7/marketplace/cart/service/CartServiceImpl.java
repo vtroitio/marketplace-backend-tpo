@@ -2,6 +2,7 @@ package com.uade.tpo.grupo7.marketplace.cart.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -231,11 +232,14 @@ public class CartServiceImpl implements CartService {
     }
 
     private String getVariantImageUrl(ProductVariant variant) {
+        String cover = variant.getProduct().getCoverImagePath();
+        if (cover != null && !cover.isBlank()) return cover;
         return variant
                 .getImages()
                 .stream()
+                .sorted(Comparator.comparingInt(img -> img.getPosition()))
                 .findFirst()
-                .map(image -> image.getPath())
+                .map(img -> img.getPath())
                 .orElse(null);
     }
 
