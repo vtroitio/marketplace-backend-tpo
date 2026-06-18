@@ -20,6 +20,7 @@ import com.uade.tpo.grupo7.marketplace.cart.dto.CartValidationResponse;
 import com.uade.tpo.grupo7.marketplace.cart.dto.SyncCartItemResultResponse;
 import com.uade.tpo.grupo7.marketplace.cart.dto.SyncCartRequest;
 import com.uade.tpo.grupo7.marketplace.cart.dto.SyncCartResponse;
+import com.uade.tpo.grupo7.marketplace.cart.dto.VariantAttributeCartResponse;
 import com.uade.tpo.grupo7.marketplace.cart.entity.Cart;
 import com.uade.tpo.grupo7.marketplace.cart.entity.CartItem;
 import com.uade.tpo.grupo7.marketplace.cart.repository.CartRepository;
@@ -207,15 +208,50 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartItemResponse mapItem(CartItem item) {
-        BigDecimal unitPrice = BigDecimal.valueOf(item.getProductVariant().getPrice());
+        ProductVariant variant = item.getProductVariant();
+        Product product = variant.getProduct();
+
+        BigDecimal unitPrice = BigDecimal.valueOf(variant.getPrice());
         BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+
+        VariantAttributeCartResponse size = getVariantAttribute(variant, "TALLE");
+        VariantAttributeCartResponse color = getVariantAttribute(variant, "COLOR");
+
         return new CartItemResponse(
                 item.getId(),
-                item.getProductVariant().getId(),
-                item.getProductVariant().getProduct().getName(),
+                variant.getId(),
+                product.getName(),
+                getVariantImageUrl(variant),
+                size,
+                color,
                 item.getQuantity(),
+                variant.getStock(),
                 unitPrice,
                 subtotal);
+    }
+
+    private String getVariantImageUrl(ProductVariant variant) {
+        return variant
+                .getImages()
+                .stream()
+                .findFirst()
+                .map(image -> image.getPath())
+                .orElse(null);
+    }
+
+    private VariantAttributeCartResponse getVariantAttribute(ProductVariant variant, String attributeCode) {
+        return variant.getAttributeValues()
+                .stream()
+                .filter(variantAttributeValue -> variantAttributeValue
+                        .getAttributeValue()
+                        .getAttribute()
+                        .getCode()
+                        .equalsIgnoreCase(attributeCode))
+                .findFirst()
+                .map(variantAttributeValue -> new VariantAttributeCartResponse(
+                        variantAttributeValue.getAttributeValue().getCode(),
+                        variantAttributeValue.getAttributeValue().getValue()))
+                .orElse(null);
     }
 
     @Transactional

@@ -6,10 +6,14 @@ import java.math.BigDecimal;
 
 @Schema(description = "DTO de respuesta para un item del carrito")
 public record CartItemResponse(
-    Long id,
-    Integer productVariantId,
-    String productName,
-    Integer quantity,
-    BigDecimal unitPrice,
-    BigDecimal subtotal
+        Long id,
+        Integer productVariantId,
+        String name,
+        String image,
+        VariantAttributeCartResponse size,
+        VariantAttributeCartResponse color,
+        Integer quantity,
+        Integer maxStock,
+        BigDecimal price,
+        BigDecimal subtotal
 ) {}
