@@ -12,6 +12,7 @@ import com.uade.tpo.grupo7.marketplace.products.dto.ProductResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateProductRequest;
 import com.uade.tpo.grupo7.marketplace.products.entity.Product;
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductImage;
+import com.uade.tpo.grupo7.marketplace.users.entity.User;
 
 public interface ProductService {
 
@@ -21,7 +22,7 @@ public interface ProductService {
 
     ProductDetailResponse getProductDetailResponseById(Long productId);
 
-    ProductResponse createProductResponse(CreateProductRequest dto);
+    ProductResponse createProductResponse(CreateProductRequest dto, User user);
 
     ProductResponse updateProductResponse(Long productId, UpdateProductRequest dto);
 
@@ -29,7 +30,7 @@ public interface ProductService {
 
     Product getProductById(Long productId);
 
-    Product createProduct(CreateProductRequest dto);
+    Product createProduct(CreateProductRequest dto, User user);
 
     Product updateProduct(Long productId, UpdateProductRequest dto);
 
@@ -40,6 +41,8 @@ public interface ProductService {
     List<ProductImage> uploadVariantImages(Long productId, Integer variantId, List<MultipartFile> files);
 
     void deleteVariantImage(Long productId, Integer variantId, Long imgId);
+
+    void reorderVariantImages(Long productId, Integer variantId, List<Long> imageIds);
 
     ProductResponse deactivateProduct(Long productId);
 
