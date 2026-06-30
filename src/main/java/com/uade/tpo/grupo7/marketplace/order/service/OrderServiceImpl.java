@@ -21,6 +21,7 @@ import com.uade.tpo.grupo7.marketplace.order.entity.OrderItem;
 import com.uade.tpo.grupo7.marketplace.order.entity.PurchaseOrder;
 import com.uade.tpo.grupo7.marketplace.order.repository.PurchaseOrderRepository;
 import com.uade.tpo.grupo7.marketplace.products.entity.ProductVariant;
+import com.uade.tpo.grupo7.marketplace.products.repository.ProductVariantRepository;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -28,12 +29,14 @@ public class OrderServiceImpl implements OrderService {
     private final CouponService couponService;
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final CartRepository cartRepository;
+    private final ProductVariantRepository productVariantRepository;
 
     public OrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
-            CartRepository cartRepository, CouponService couponService) {
+            CartRepository cartRepository, CouponService couponService, ProductVariantRepository productVariantRepository) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.cartRepository = cartRepository;
         this.couponService = couponService;
+        this.productVariantRepository = productVariantRepository;
     }
 
     @Transactional
@@ -128,7 +131,16 @@ public class OrderServiceImpl implements OrderService {
 
         for (CartItem cartItem : cart.getItems()) {
             ProductVariant variant = cartItem.getProductVariant();
-            variant.setStock(variant.getStock() - cartItem.getQuantity());
+
+            int updatedRows = productVariantRepository.decrementStockIfEnough(
+                    variant.getId(),
+                    cartItem.getQuantity());
+
+            if (updatedRows == 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Insufficient stock for variant " + variant.getSku());
+            }
         }
 
         PurchaseOrder savedOrder = purchaseOrderRepository.save(order);
