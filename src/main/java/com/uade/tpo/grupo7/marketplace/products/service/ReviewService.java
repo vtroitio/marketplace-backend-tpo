@@ -11,6 +11,8 @@ public interface ReviewService {
 
     ReviewResponse createReview(Long productId, CreateReviewRequest request, User user);
 
+    boolean hasPurchasedProduct(Long productId, User user);
+
     List<ReviewResponse> getReviewsByProductId(Long productId);
 
     ReviewResponse updateReview(Long reviewId, UpdateReviewRequest request, User user);

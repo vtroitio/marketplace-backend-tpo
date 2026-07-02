@@ -15,16 +15,22 @@ import com.uade.tpo.grupo7.marketplace.products.mapper.ReviewMapper;
 import com.uade.tpo.grupo7.marketplace.products.repository.ProductRepository;
 import com.uade.tpo.grupo7.marketplace.products.repository.ReviewRepository;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
+import com.uade.tpo.grupo7.marketplace.order.repository.PurchaseOrderRepository;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, ProductRepository productRepository) {
+    public ReviewServiceImpl(
+            ReviewRepository reviewRepository,
+            ProductRepository productRepository,
+            PurchaseOrderRepository purchaseOrderRepository) {
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
+        this.purchaseOrderRepository = purchaseOrderRepository;
     }
 
     @Override
@@ -34,6 +40,13 @@ public class ReviewServiceImpl implements ReviewService {
                 HttpStatus.NOT_FOUND,
                 "Product with id " + productId + " not found"
         ));
+
+            if (!hasPurchasedProduct(productId, user)) {
+                throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You must purchase this product before leaving a review"
+                );
+            }
 
         if (reviewRepository.existsByProductAndBuyerAndDeletedAtIsNull(product, user)) {
             throw new ResponseStatusException(
@@ -56,6 +69,11 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.findAllByProduct_IdAndDeletedAtIsNull(productId).stream()
                 .map(ReviewMapper::toResponse)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public boolean hasPurchasedProduct(Long productId, User user) {
+        return purchaseOrderRepository.existsByBuyerIdAndProductId(user.getId(), productId);
     }
 
     @Override

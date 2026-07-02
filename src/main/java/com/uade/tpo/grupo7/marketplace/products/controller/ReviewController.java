@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.grupo7.marketplace.products.dto.CreateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.dto.ReviewResponse;
+import com.uade.tpo.grupo7.marketplace.products.dto.ReviewPurchaseValidationResponse;
 import com.uade.tpo.grupo7.marketplace.products.dto.UpdateReviewRequest;
 import com.uade.tpo.grupo7.marketplace.products.service.ReviewService;
 import com.uade.tpo.grupo7.marketplace.users.entity.User;
@@ -48,6 +49,15 @@ public class ReviewController {
             @AuthenticationPrincipal User user
     ) {
         return reviewService.createReview(productId, request, user);
+    }
+
+    @PreAuthorize("hasRole('BUYER') or hasRole('SELLER')")
+    @GetMapping("purchase-validation")
+    public ReviewPurchaseValidationResponse validatePurchase(
+            @PathVariable Long productId,
+            @AuthenticationPrincipal User user
+    ) {
+        return new ReviewPurchaseValidationResponse(reviewService.hasPurchasedProduct(productId, user));
     }
     
     @GetMapping

@@ -438,7 +438,7 @@ public class ProductSeeder implements CommandLineRunner {
                 saveProductWithImages(
                                 remeraNarutoAkatsuki,
                                 Map.of(
-                                                "REM-AKA-NEG-S", List.of("nar-blanco-1.png"),
+                                                "REM-AKA-BLA-S", List.of("nar-blanco-1.png"),
                                                 "REM-AKA-NEG-M", List.of("nar-negro-1.png"),
                                                 "REM-AKA-NEG-L", List.of("nar-negro-1.png")));
                 saveProductWithImages(
