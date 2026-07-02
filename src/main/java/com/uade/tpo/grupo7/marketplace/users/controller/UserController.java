@@ -101,6 +101,12 @@ public class UserController {
         return this.userService.promoteUserToSeller(userId);
     }
 
+    @PreAuthorize("hasRole('BUYER')")
+    @PostMapping("me/become-seller")
+    public UserResponse becomeSeller(@AuthenticationPrincipal User user) {
+        return this.userService.promoteUserToSeller(user.getId());
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("{userId}/deactivate")
     public ResponseEntity<Void> deactivateUser(@PathVariable Long userId) {
