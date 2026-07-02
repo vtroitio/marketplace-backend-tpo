@@ -128,7 +128,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     @Override
     public Page<ProductResponse> getMyProductResponses(Pageable pageable, Long userId) {
-        return this.productRepository.findBySellerId(pageable, userId)
+        return this.productRepository.findBySellerIdAndDeletedAtIsNull(pageable, userId)
                 .map(ProductMapper::toResponse);
     }
 
