@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<List<Product>> findBySeller(User seller);
 
-    Page<Product> findBySellerId(Pageable pageable, Long userId);
+    Page<Product> findBySellerIdAndDeletedAtIsNull(Pageable pageable, Long userId);
 
     @Query(value = """
                 SELECT DISTINCT p
