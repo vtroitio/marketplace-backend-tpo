@@ -26,13 +26,13 @@ public class CategorySeeder implements CommandLineRunner {
         Category hombre = categoryRepository.save(Category.builder().name("Hombre").code("HOMBRE").build());
         Category mujer = categoryRepository.save(Category.builder().name("Mujer").code("MUJER").build());
 
-        categoryRepository.save(Category.builder().name("Remera").code("HOMBRE_REMERA").parent(hombre).build());
-        categoryRepository.save(Category.builder().name("Pantalon").code("HOMBRE_PANTALON").parent(hombre).build());
-        categoryRepository.save(Category.builder().name("Short").code("HOMBRE_SHORT").parent(hombre).build());
+        categoryRepository.save(Category.builder().name("Remera de Hombre").code("HOMBRE_REMERA").parent(hombre).build());
+        categoryRepository.save(Category.builder().name("Pantalon de Hombre").code("HOMBRE_PANTALON").parent(hombre).build());
+        categoryRepository.save(Category.builder().name("Short de Hombre").code("HOMBRE_SHORT").parent(hombre).build());
 
-        categoryRepository.save(Category.builder().name("Remera").code("MUJER_REMERA").parent(mujer).build());
-        categoryRepository.save(Category.builder().name("Pantalon").code("MUJER_PANTALON").parent(mujer).build());
-        categoryRepository.save(Category.builder().name("Short").code("MUJER_SHORT").parent(mujer).build());
-        categoryRepository.save(Category.builder().name("Top").code("MUJER_TOP").parent(mujer).build());
+        categoryRepository.save(Category.builder().name("Remera de Mujer").code("MUJER_REMERA").parent(mujer).build());
+        categoryRepository.save(Category.builder().name("Pantalon de Mujer").code("MUJER_PANTALON").parent(mujer).build());
+        categoryRepository.save(Category.builder().name("Short de Mujer").code("MUJER_SHORT").parent(mujer).build());
+        categoryRepository.save(Category.builder().name("Top de Mujer").code("MUJER_TOP").parent(mujer).build());
     }
 }

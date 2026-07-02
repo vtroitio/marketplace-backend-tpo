@@ -36,7 +36,10 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @PreAuthorize("hasRole('BUYER')")
+    @PreAuthorize("""
+        (hasRole('BUYER') or hasRole('SELLER')) and 
+        !@ownership.isProductOwner(#productId, authentication.principal)
+    """)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewResponse createReview(
